@@ -68,14 +68,6 @@ tr:nth-child(even) td{background:var(--bg2);}
 .cb-row.on{cursor:pointer;}.cb-row.on:hover{background:var(--bg2);}
 .cb-row.off{opacity:.45;}
 
-/* Chrome profile selector */
-.profile-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 15px;margin-bottom:14px;}
-.profile-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
-.profile-btns{display:flex;gap:6px;flex-wrap:wrap;}
-.pbtn{padding:6px 14px;border:1px solid var(--border2);border-radius:20px;background:var(--bg);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
-.pbtn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
-.pbtn:hover:not(.active){background:var(--bg3);}
-.profile-custom{margin-top:8px;width:100%;display:none;}
 
 /* Execute button */
 .exec{width:100%;padding:13px;font-size:15px;font-weight:600;cursor:pointer;border-radius:8px;border:none;color:#fff;background:var(--primary);transition:all .15s;}
@@ -188,18 +180,6 @@ tr:nth-child(even) td{background:var(--bg2);}
   </div>
 </div>
 
-<!-- Chrome profile selector -->
-<div class="profile-wrap">
-  <div class="profile-label">🌐 使用するChromeプロファイル</div>
-  <div class="profile-btns">
-    <button class="pbtn active" data-profile="work" onclick="selectProfile('work')">💼 Work（仕事用）</button>
-    <button class="pbtn" data-profile="personal" onclick="selectProfile('personal')">🏠 Personal（個人用）</button>
-    <button class="pbtn" data-profile="custom" onclick="selectProfile('custom')">✏️ その他...</button>
-  </div>
-  <input type="text" id="custom-profile-input" class="profile-custom" placeholder="Chromeプロファイル名を入力（例：Capsule Work）">
-  <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="profile-hint">WorkアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください</div>
-</div>
-
 <!-- Execute -->
 <div style="border-top:1px solid var(--border);padding-top:16px;">
   <button id="exec-btn" class="exec" onclick="executeReport()" disabled>
@@ -226,12 +206,9 @@ tr:nth-child(even) td{background:var(--bg2);}
   <div class="login-panel" id="login-panel">
     <h4>⚠️ Current RMSへのログインが必要です</h4>
     <div style="font-size:12px;color:#92400e;margin-bottom:10px;">
-      選択中のプロファイル: <strong id="login-profile-name">Work Chrome</strong><br>
-      別のプロファイルに切り替えるか、ログイン後に再実行してください。
+      capsule.current-rms.com にログインしてから再実行してください。
     </div>
     <div class="login-actions">
-      <button class="login-btn" onclick="switchToWork()">💼 Work Chromeで試す</button>
-      <button class="login-btn" onclick="switchToPersonal()">🏠 Personal Chromeで試す</button>
       <button class="login-btn" onclick="retryAfterLogin()">✅ ログイン完了 — 再実行</button>
     </div>
   </div>
@@ -413,7 +390,6 @@ const DEFAULT_STATE = {
 };
 
 let STATE = JSON.parse(JSON.stringify(DEFAULT_STATE));
-let currentProfile = 'work';
 let lastReq = {};
 
 // ─── localStorage ─────────────────────────────────────────────────────────────
@@ -421,7 +397,6 @@ function saveState() {
   try {
     const y = document.getElementById('sel-year');
     const m = document.getElementById('sel-month');
-    const ci = document.getElementById('custom-profile-input');
     // builtin会社のユニットデータは保存しない（常にDEFAULT_STATEから取得）
     const customCompanies = {};
     Object.keys(STATE).forEach(co => {
@@ -432,8 +407,6 @@ function saveState() {
       companies: customCompanies,
       year: y ? y.value : null,
       month: m ? m.value : null,
-      profile: currentProfile,
-      customProfile: ci ? ci.value : '',
       savedAt: new Date().toISOString()
     };
     localStorage.setItem(LS_KEY, JSON.stringify(payload));
@@ -473,11 +446,6 @@ function loadState() {
       const ms = document.getElementById('sel-month');
       if (ms) ms.value = p.month;
     }
-    if (p.profile) selectProfile(p.profile, false);
-    if (p.customProfile) {
-      const ci = document.getElementById('custom-profile-input');
-      if (ci) ci.value = p.customProfile;
-    }
     if (p.savedAt) {
       const lbl = document.getElementById('saved-lbl');
       const d = new Date(p.savedAt);
@@ -488,34 +456,6 @@ function loadState() {
     return false;
   }
 }
-
-// ─── Chrome profile ───────────────────────────────────────────────────────────
-function selectProfile(profile, doSave = true) {
-  currentProfile = profile;
-  document.querySelectorAll('.pbtn').forEach(b => b.classList.toggle('active', b.dataset.profile === profile));
-  const ci = document.getElementById('custom-profile-input');
-  const hint = document.getElementById('profile-hint');
-  if (profile === 'custom') {
-    ci.style.display = 'block';
-    ci.focus();
-    hint.textContent = 'プロファイル名を入力してください（例：Capsule Work）';
-  } else {
-    ci.style.display = 'none';
-    hint.textContent = profile === 'work'
-      ? 'WorkアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください'
-      : 'PersonalアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください';
-  }
-  if (doSave) saveStateAuto();
-}
-
-function getChromeProfileLabel() {
-  if (currentProfile === 'work') return 'Work（仕事用）Chrome';
-  if (currentProfile === 'personal') return 'Personal（個人用）Chrome';
-  const ci = document.getElementById('custom-profile-input');
-  return ci && ci.value.trim() ? ci.value.trim() : 'その他のChrome';
-}
-
-document.getElementById('custom-profile-input').addEventListener('input', saveStateAuto);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function slug(co) { return co.replace(/[^a-zA-Z0-9]/g,'_'); }
@@ -777,23 +717,45 @@ function executeReport() {
     const el = document.getElementById('cb-' + slug(co));
     return el && !el.disabled && el.checked;
   });
-  const profileLabel = getChromeProfileLabel();
-  lastReq = { year, month, cos: selected, profile: profileLabel };
+  lastReq = { year, month, cos: selected };
 
+  // 会社ごとのstock_level_id一覧とURL付き詳細を生成
   let detail = '';
+  let urlList = '';
   selected.forEach(co => {
     const valid = STATE[co].units.filter(u => isValidId(u.stock_level_id));
     const byP = {};
     valid.forEach(u => { if (!byP[u.product]) byP[u.product]=[]; byP[u.product].push(u.stock_level_id); });
     detail += `\n【${co}】\n`;
-    Object.entries(byP).forEach(([p, ids]) => { detail += `・${p}: ${ids.length}台 / IDs: ${ids.join(', ')}\n`; });
+    Object.entries(byP).forEach(([p, ids]) => {
+      detail += `・${p}（${ids.length}台）: stock_level_id = ${ids.join(', ')}\n`;
+      ids.forEach(id => {
+        urlList += `https://capsule.current-rms.com/opportunities?filtermode=all&stock_level_id=${id}&view_id=0&per_page=200\n`;
+      });
+    });
   });
 
   const btn = document.getElementById('exec-btn');
   btn.disabled = true;
   btn.textContent = '⟳ 送信中...';
 
-  const promptMsg = `月次レポート実行リクエスト\n\n対象月: ${year}年${month}月\n対象会社: ${selected.join(', ')}\nChromeプロファイル: ${profileLabel}\n${detail}\n手順:\n1. まず mcp__Claude_in_Chrome__list_connected_browsers でブラウザ一覧を確認し、「${profileLabel}」に対応するブラウザを select_browser で選択してください。\n2. capsule.current-rms.com にアクセスし、ログイン済みか確認してください。\n3. ログインページにリダイレクトされた場合は「ログインが必要です」と報告し、別プロファイルへの切り替え提案をしてください。\n4. ログイン済みであれば、各stock_level_idについて /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 をスクレーピングして${year}年${month}月と重なる実績を集計してください。\n5. 案件名・日数・台数・単価・割引率・実売上をまとめてCSVダウンロード付きで表示してください。`;
+  const promptMsg = `以下のスクレーピングを今すぐ開始してください。説明・確認・質問は一切不要です。そのまま実行してください。
+
+【対象月】${year}年${month}月
+【対象会社】${selected.join('、')}
+
+【実行手順 — この順番で即座に実行すること】
+STEP 1: list_connected_browsers でChrome接続を確認し、select_browser で利用可能なブラウザを選択
+STEP 2: https://capsule.current-rms.com/ にアクセスしてログイン済みか確認
+　→ ログインが必要な場合のみ「ログインが必要です」と一言報告（それ以外の説明は不要）
+STEP 3: 下記URLリストを上から順番にスクレーピング（1URLずつ実行）
+STEP 4: 各URLのopportunitiesから${year}年${month}月と日程が重なる案件を抽出
+STEP 5: 全件集計後、会社別・製品別に「案件名 / 期間 / 日数 / 売上」をまとめてCSV付きで表示
+
+【スクレーピング対象 URL一覧 — 全件実行すること】
+${urlList}
+【機材内訳】${detail}
+※ Claudeのセキュリティ確認（Allow/Deny）が出た場合はそちらで対応してください。`;
 
   try { sendPrompt(promptMsg); } catch(e) { console.warn('sendPrompt error:', e); }
 
@@ -827,11 +789,10 @@ function showStatusPanel(mode) {
     document.getElementById('status-icon').textContent = '🔒';
     document.getElementById('status-icon').className = '';
     document.getElementById('status-title').textContent = 'ログインが必要です';
-    document.getElementById('status-sub').textContent = '下のオプションから対応を選択してください';
+    document.getElementById('status-sub').textContent = 'Current RMSにログインしてから再実行してください';
     document.getElementById('stop-btn').style.display = 'none';
     document.getElementById('retry-btn').style.display = '';
     document.getElementById('login-panel').style.display = 'block';
-    document.getElementById('login-profile-name').textContent = getChromeProfileLabel();
   }
 }
 
@@ -854,12 +815,10 @@ function retryReport() {
   document.getElementById('exec-note').textContent = 'ClaudeがChrome経由でCurrent RMSにアクセスし、各ユニットの実績を自動収集します';
 }
 
-function switchToWork() { selectProfile('work'); try { sendPrompt('WorkのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); } catch(e) {} }
-function switchToPersonal() { selectProfile('personal'); try { sendPrompt('PersonalのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); } catch(e) {} }
 function retryAfterLogin() { retryReport(); }
 
 function reportError() {
-  try { sendPrompt(`スクレーピング中にエラーが発生した可能性があります。\n対象: ${lastReq.year}年${lastReq.month}月 / ${(lastReq.cos||[]).join(', ')}\nChromeプロファイル: ${lastReq.profile}\nChrome接続状態・Current RMSへのアクセス状況を診断して問題と対処法を教えてください。`); } catch(e) {}
+  try { sendPrompt(`スクレーピング中にエラーが発生しました。\n対象: ${lastReq.year}年${lastReq.month}月 / ${(lastReq.cos||[]).join(', ')}\nChrome接続状態とCurrent RMSへのアクセス状況を診断して、問題と対処法を教えてください。`); } catch(e) {}
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────

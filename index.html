@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>å§è¨åææ¬¡ã¬ãã¼ã</title>
+<style>
+:root{color-scheme:light;--bg:#ffffff;--bg2:#f8f9fa;--bg3:#f1f3f5;--text:#1a1a1a;--text2:#555;--text3:#888;--border:#e5e7eb;--border2:#d1d5db;--primary:#185FA5;--primary-dark:#124d8a;--success-bg:#ecfce6;--success-text:#3a6e0c;--warn-bg:#fef9c3;--warn-text:#854d0e;--danger-bg:#fee2e2;--danger-text:#b91c1c;--danger-border:#fca5a5;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
+input,select,textarea{font-family:inherit;font-size:13px;color:var(--text);background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;outline:none;}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(24,95,165,.15);}
+button{font-family:inherit;}
+
+.page{max-width:820px;margin:0 auto;padding:20px 16px 40px;}
+
+/* Header */
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--border);margin-bottom:20px;}
+.hdr-title{font-size:20px;font-weight:600;color:var(--text);}
+.hdr-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.hdr-badge{font-size:11px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;color:var(--text2);text-align:right;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:var(--bg2);border-radius:8px;padding:12px 14px;}
+.stat.warn{background:var(--warn-bg);}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.stat.warn .stat-label{color:var(--warn-text);}
+.stat-val{font-size:22px;font-weight:600;color:var(--text);}
+.stat.warn .stat-val{color:var(--warn-text);}
+
+/* Section label */
+.sec{font-size:13px;font-weight:600;color:var(--text);margin:0 0 10px;display:flex;align-items:center;gap:6px;}
+.sec-icon{font-size:15px;}
+
+/* Accordion */
+.ac-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.ac-hdr{display:flex;align-items:center;padding:10px 13px;cursor:pointer;gap:8px;user-select:none;background:var(--bg);}
+.ac-hdr:hover{background:var(--bg2);}
+.ac-body{display:none;border-top:1px solid var(--border);max-height:210px;overflow-y:auto;background:var(--bg);}
+.ac-body.open{display:block;}
+.chev{transition:transform .18s;color:var(--text3);font-size:14px;flex-shrink:0;}
+.chev.open{transform:rotate(90deg);}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.dot-ok{background:#639922;}.dot-warn{background:#BA7517;}.dot-none{background:#ccc;}
+.pill{font-size:11px;padding:2px 8px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+.p-ok{background:var(--success-bg);color:var(--success-text);}
+.p-warn{background:var(--warn-bg);color:var(--warn-text);}
+.p-none{background:var(--bg3);color:var(--text3);}
+
+/* Icon buttons */
+.ibtn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;font-size:12px;border:1px solid var(--border2);border-radius:6px;background:var(--bg);color:var(--text2);cursor:pointer;}
+.ibtn:hover:not(:disabled){background:var(--bg2);color:var(--text);}
+.ibtn:disabled{opacity:.38;cursor:not-allowed;}
+.ibtn.danger{color:var(--danger-text);border-color:var(--danger-border);}
+.ibtn.danger:hover{background:var(--danger-bg);}
+.ibtn.confirm{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border);}
+
+/* Table */
+th{padding:7px 12px;text-align:left;font-weight:500;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);white-space:nowrap;}
+td{padding:6px 12px;font-size:12px;color:var(--text);}
+tr:nth-child(even) td{background:var(--bg2);}
+.badge-ok{background:var(--success-bg);color:var(--success-text);font-size:11px;padding:1px 7px;border-radius:20px;}
+.badge-warn{background:var(--warn-bg);color:var(--warn-text);font-size:11px;padding:1px 7px;border-radius:20px;}
+
+/* Company checkboxes */
+.cb-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--border);border-radius:7px;background:var(--bg);}
+.cb-row.on{cursor:pointer;}.cb-row.on:hover{background:var(--bg2);}
+.cb-row.off{opacity:.45;}
+
+/* Chrome profile selector */
+.profile-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px 15px;margin-bottom:14px;}
+.profile-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.profile-btns{display:flex;gap:6px;flex-wrap:wrap;}
+.pbtn{padding:6px 14px;border:1px solid var(--border2);border-radius:20px;background:var(--bg);color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;transition:all .15s;}
+.pbtn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.pbtn:hover:not(.active){background:var(--bg3);}
+.profile-custom{margin-top:8px;width:100%;display:none;}
+
+/* Execute button */
+.exec{width:100%;padding:13px;font-size:15px;font-weight:600;cursor:pointer;border-radius:8px;border:none;color:#fff;background:var(--primary);transition:all .15s;}
+.exec:hover:not(:disabled){background:var(--primary-dark);}
+.exec:disabled{opacity:.38;cursor:not-allowed;}
+
+/* Status panel */
+.status-panel{margin-top:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;display:none;}
+.status-hdr{padding:14px 16px;background:var(--bg2);display:flex;align-items:center;gap:12px;}
+.status-actions{display:flex;gap:6px;flex-shrink:0;}
+.stop-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;font-size:13px;font-weight:600;border:1px solid var(--danger-border);border-radius:6px;background:var(--danger-bg);color:var(--danger-text);cursor:pointer;font-family:inherit;}
+.stop-btn:hover{opacity:.8;}
+.err-toggle{width:100%;padding:9px 16px;background:none;border:none;border-top:1px solid var(--border);cursor:pointer;text-align:left;font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px;font-family:inherit;}
+.err-guide{padding:0 16px 14px;display:none;}
+.err-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.err-item:last-child{border-bottom:none;}
+.err-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px;}
+
+/* Login choice panel */
+.login-panel{margin-top:10px;padding:14px 16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;display:none;}
+.login-panel h4{font-size:13px;font-weight:600;color:#92400e;margin-bottom:10px;}
+.login-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.login-btn{padding:8px 14px;border:1px solid #fcd34d;border-radius:6px;background:#fff;color:#92400e;cursor:pointer;font-size:13px;font-family:inherit;font-weight:500;}
+.login-btn:hover{background:#fef3c7;}
+
+/* Add form */
+.add-form{display:none;border:1px solid var(--border2);border-radius:8px;padding:13px 15px;margin-bottom:8px;background:var(--bg2);}
+.add-row{display:flex;gap:8px;margin-top:8px;}
+
+/* Add button dashed */
+.add-co-btn{width:100%;padding:9px;margin-bottom:20px;border:1px dashed var(--border2);border-radius:8px;background:none;color:var(--text2);cursor:pointer;font-size:13px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;}
+.add-co-btn:hover{background:var(--bg2);}
+
+/* Saved indicator */
+.saved-dot{width:6px;height:6px;border-radius:50%;background:#639922;display:inline-block;margin-right:4px;opacity:0;transition:opacity .3s;}
+.saved-dot.show{opacity:1;}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin 1.2s linear infinite;display:inline-block;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Header -->
+<div class="hdr">
+  <div>
+    <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Capsule</div>
+    <div class="hdr-title">å§è¨åææ¬¡ã¬ãã¼ã</div>
+    <div class="hdr-sub">Consignment Monthly Report Generator</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="hdr-badge"><span class="saved-dot" id="saved-dot"></span><span id="saved-lbl">æçµä¿å­: â</span></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="today-lbl"></div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat"><div class="stat-label">ç¢ºèªæ¸ã¿ã¦ããã</div><div class="stat-val" id="stat-confirmed">â</div></div>
+  <div class="stat"><div class="stat-label">å®è¡å¯è½ãªä¼ç¤¾</div><div class="stat-val" id="stat-companies">â</div></div>
+  <div class="stat warn"><div class="stat-label">IDæªç¢ºèª</div><div class="stat-val" id="stat-pending">â</div></div>
+</div>
+
+<!-- Inventory -->
+<div class="sec">ð¦ ã¤ã³ãã³ããª</div>
+<div id="accordion-list"></div>
+
+<!-- Add form -->
+<div class="add-form" id="add-form">
+  <div style="font-size:13px;font-weight:600;color:var(--text);">æ°ããå§è¨ä¼ç¤¾ãè¿½å </div>
+  <div class="add-row">
+    <input type="text" id="new-co-name" placeholder="ä¼ç¤¾åï¼ä¾ï¼Video Serviceï¼" style="flex:1;">
+    <button class="ibtn" style="color:var(--text);font-weight:600;" onclick="addCompany()">è¿½å </button>
+    <button class="ibtn" onclick="hideAddForm()">ã­ã£ã³ã»ã«</button>
+  </div>
+</div>
+<button class="add-co-btn" id="add-co-btn" onclick="showAddForm()">ï¼ ä¼ç¤¾ãè¿½å </button>
+
+<!-- Month selector + Company checks -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+  <div>
+    <div class="sec">ð å¯¾è±¡æãé¸æ</div>
+    <div style="display:flex;gap:8px;">
+      <select id="sel-year" style="flex:1;" onchange="onYearChange()"></select>
+      <select id="sel-month" style="flex:1;" onchange="saveStateAuto();updateExecBtn()">
+        <option value="1">1æ</option><option value="2">2æ</option><option value="3">3æ</option>
+        <option value="4">4æ</option><option value="5">5æ</option><option value="6">6æ</option>
+        <option value="7">7æ</option><option value="8">8æ</option><option value="9">9æ</option>
+        <option value="10">10æ</option><option value="11">11æ</option><option value="12">12æ</option>
+      </select>
+    </div>
+  </div>
+  <div>
+    <div class="sec">ð¢ å¯¾è±¡ä¼ç¤¾</div>
+    <div style="display:flex;flex-direction:column;gap:6px;" id="company-checks"></div>
+  </div>
+</div>
+
+<!-- Chrome profile selector -->
+<div class="profile-wrap">
+  <div class="profile-label">ð ä½¿ç¨ããChromeãã­ãã¡ã¤ã«</div>
+  <div class="profile-btns">
+    <button class="pbtn active" data-profile="work" onclick="selectProfile('work')">ð¼ Workï¼ä»äºç¨ï¼</button>
+    <button class="pbtn" data-profile="personal" onclick="selectProfile('personal')">ð  Personalï¼åäººç¨ï¼</button>
+    <button class="pbtn" data-profile="custom" onclick="selectProfile('custom')">âï¸ ãã®ä»...</button>
+  </div>
+  <input type="text" id="custom-profile-input" class="profile-custom" placeholder="Chromeãã­ãã¡ã¤ã«åãå¥åï¼ä¾ï¼Capsule Workï¼">
+  <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="profile-hint">Workã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã</div>
+</div>
+
+<!-- Execute -->
+<div style="border-top:1px solid var(--border);padding-top:16px;">
+  <button id="exec-btn" class="exec" onclick="executeReport()" disabled>
+    â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡
+  </button>
+  <p id="exec-note" style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px;">ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã</p>
+</div>
+
+<!-- Status panel -->
+<div class="status-panel" id="status-panel">
+  <div class="status-hdr">
+    <span id="status-icon" class="spin" style="font-size:20px;flex-shrink:0;">â³</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:600;color:var(--text);" id="status-title">Claudeãå®è¡ä¸­</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="status-sub">Chromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ãã¦ãã¾ã...</div>
+    </div>
+    <div class="status-actions">
+      <button id="stop-btn" class="stop-btn" onclick="stopReport()">â¹ åæ­¢</button>
+      <button id="retry-btn" class="ibtn" onclick="retryReport()" style="display:none;">âº åå®è¡</button>
+    </div>
+  </div>
+
+  <!-- Login choice â shown when Claude detects sign-in redirect -->
+  <div class="login-panel" id="login-panel">
+    <h4>â ï¸ Current RMSã¸ã®ã­ã°ã¤ã³ãå¿è¦ã§ã</h4>
+    <div style="font-size:12px;color:#92400e;margin-bottom:10px;">
+      é¸æä¸­ã®ãã­ãã¡ã¤ã«: <strong id="login-profile-name">Work Chrome</strong><br>
+      å¥ã®ãã­ãã¡ã¤ã«ã«åãæ¿ããããã­ã°ã¤ã³å¾ã«åå®è¡ãã¦ãã ããã
+    </div>
+    <div class="login-actions">
+      <button class="login-btn" onclick="switchToWork()">ð¼ Work Chromeã§è©¦ã</button>
+      <button class="login-btn" onclick="switchToPersonal()">ð  Personal Chromeã§è©¦ã</button>
+      <button class="login-btn" onclick="retryAfterLogin()">â ã­ã°ã¤ã³å®äº â åå®è¡</button>
+    </div>
+  </div>
+
+  <button class="err-toggle" onclick="toggleErrGuide()">
+    <span class="chev" id="chev-err">âº</span> æ¥ç¶ã«åé¡ãåºãå ´åã¯
+  </button>
+  <div class="err-guide" id="err-guide">
+    <div class="err-item">
+      <div class="err-icon" style="background:var(--bg3);">ð</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Chrome MCPãæªæ¥ç¶</div><div style="font-size:12px;color:var(--text2);">Claudeæ¡å¼µæ©è½ãChromeã«ã¤ã³ã¹ãã¼ã«ããã¦ãããç¢ºèªããæ¡å¼µæ©è½ã¢ã¤ã³ã³ãã¯ãªãã¯ãã¦æ¥ç¶ãã¦ãã ããã</div></div>
+    </div>
+    <div class="err-item">
+      <div class="err-icon" style="background:var(--warn-bg);">ð</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Current RMSã«ã­ã°ã¤ã³ãã¦ããªã</div><div style="font-size:12px;color:var(--text2);">é¸æãããã­ãã¡ã¤ã«ã®Chromeã§ <strong>capsule.current-rms.com</strong> ã«ã­ã°ã¤ã³ãã¦ããåå®è¡ãã¦ãã ããã</div></div>
+    </div>
+    <div class="err-item">
+      <div class="err-icon" style="background:var(--danger-bg);">â±</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">ã¿ã¤ã ã¢ã¦ã / å¿ç­ãªã</div><div style="font-size:12px;color:var(--text2);">ã¦ãããæ°ãå¤ãã¨æéããããã¾ãããã°ããå¾ã¤ããåå®è¡ãã¿ã³ã§åè©¦è¡ãã¦ãã ããã</div></div>
+    </div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid var(--border);">
+    <button class="ibtn" style="width:100%;justify-content:center;gap:6px;" onclick="reportError()">â  ã¨ã©ã¼ãClaudeã«å ±åãã¦è¨ºæ­</button>
+  </div>
+</div>
+
+</div><!-- .page -->
+
+<script>
+// âââ State âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+const LS_KEY = 'capsule_consignment_v2';
+const NOW = new Date();
+
+const DEFAULT_STATE = {
+  'Nishio Rent All': {
+    builtin: true,
+    cols: ['stock_level_id','serial_number','product','company','notes'],
+    units: [
+      {stock_level_id:'16317',serial_number:'A100290495A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16318',serial_number:'A100290496A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16319',serial_number:'A100290497A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16320',serial_number:'A100290498A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16321',serial_number:'A100290499A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16322',serial_number:'A100290500A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16323',serial_number:'A100290501A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16324',serial_number:'A100290502A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16325',serial_number:'A100290503A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16326',serial_number:'A100290504A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16327',serial_number:'A100290505A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16328',serial_number:'A100290506A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16329',serial_number:'A100290507A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16330',serial_number:'A100290508A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16331',serial_number:'A100290509A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16332',serial_number:'A100290510A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16333',serial_number:'A100290511A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16334',serial_number:'A100290512A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16335',serial_number:'A100290513A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16336',serial_number:'A100290514A',product:'IDX DUO-C198',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16345',serial_number:'A100398717A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16346',serial_number:'A100398718A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16347',serial_number:'A100398719A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16348',serial_number:'A100398720A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16349',serial_number:'A100398721A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16350',serial_number:'A100398722A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16351',serial_number:'A100398723A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16352',serial_number:'A100398724A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16353',serial_number:'A100398725A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+      {stock_level_id:'16354',serial_number:'A100398726A',product:'IDX DUO-98',company:'Nishio Rent All',notes:''},
+    ]
+  },
+  'TOGO': {
+    builtin: true,
+    cols: ['stock_level_id','asset_number','serial_number','product','company','notes'],
+    units: [
+      {stock_level_id:'è¦ç¢ºèª',asset_number:'6980',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
+      {stock_level_id:'è¦ç¢ºèª',asset_number:'6986',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
+      {stock_level_id:'è¦ç¢ºèª',asset_number:'6998',serial_number:'',product:'SmallHD | 503 UltraBright',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
+      {stock_level_id:'è¦ç¢ºèª',asset_number:'12465',serial_number:'',product:'DJI | Transmission | Remote Monitor 7"',company:'TOGO',notes:'3æRyosukeYamada MVã»SUTICASESã§ç¢ºèªæ¸ã¿'},
+      {stock_level_id:'è¦ç¢ºèª',asset_number:'',serial_number:'',product:'Teradekï¼æ©ç¨®ã»å°æ°æªç¢ºèªï¼',company:'TOGO',notes:'Current RMSã§è¦ç¢ºèª'},
+    ]
+  }
+};
+
+let STATE = JSON.parse(JSON.stringify(DEFAULT_STATE));
+let currentProfile = 'work';
+let lastReq = {};
+
+// âââ localStorage âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function saveState() {
+  try {
+    const y = document.getElementById('sel-year');
+    const m = document.getElementById('sel-month');
+    const ci = document.getElementById('custom-profile-input');
+    const payload = {
+      v: 2,
+      companies: STATE,
+      year: y ? y.value : null,
+      month: m ? m.value : null,
+      profile: currentProfile,
+      customProfile: ci ? ci.value : '',
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(payload));
+    flashSaved(payload.savedAt);
+  } catch(e) {}
+}
+
+function flashSaved(iso) {
+  const dot = document.getElementById('saved-dot');
+  const lbl = document.getElementById('saved-lbl');
+  if (!dot || !lbl) return;
+  const d = new Date(iso);
+  lbl.textContent = 'ä¿å­æ¸: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  dot.classList.add('show');
+  setTimeout(() => dot.classList.remove('show'), 2000);
+}
+
+function saveStateAuto() { saveState(); }
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const p = JSON.parse(raw);
+    if (!p || p.v < 2) return false;
+    STATE = p.companies || STATE;
+    if (p.year) {
+      const ys = document.getElementById('sel-year');
+      if (ys) ys.value = p.year;
+    }
+    if (p.month) {
+      const ms = document.getElementById('sel-month');
+      if (ms) ms.value = p.month;
+    }
+    if (p.profile) selectProfile(p.profile, false);
+    if (p.customProfile) {
+      const ci = document.getElementById('custom-profile-input');
+      if (ci) ci.value = p.customProfile;
+    }
+    if (p.savedAt) {
+      const lbl = document.getElementById('saved-lbl');
+      const d = new Date(p.savedAt);
+      if (lbl) lbl.textContent = 'ä¿å­æ¸: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+    }
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
+// âââ Chrome profile âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function selectProfile(profile, doSave = true) {
+  currentProfile = profile;
+  document.querySelectorAll('.pbtn').forEach(b => b.classList.toggle('active', b.dataset.profile === profile));
+  const ci = document.getElementById('custom-profile-input');
+  const hint = document.getElementById('profile-hint');
+  if (profile === 'custom') {
+    ci.style.display = 'block';
+    ci.focus();
+    hint.textContent = 'ãã­ãã¡ã¤ã«åãå¥åãã¦ãã ããï¼ä¾ï¼Capsule Workï¼';
+  } else {
+    ci.style.display = 'none';
+    hint.textContent = profile === 'work'
+      ? 'Workã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã'
+      : 'Personalã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã';
+  }
+  if (doSave) saveStateAuto();
+}
+
+function getChromeProfileLabel() {
+  if (currentProfile === 'work') return 'Workï¼ä»äºç¨ï¼Chrome';
+  if (currentProfile === 'personal') return 'Personalï¼åäººç¨ï¼Chrome';
+  const ci = document.getElementById('custom-profile-input');
+  return ci && ci.value.trim() ? ci.value.trim() : 'ãã®ä»ã®Chrome';
+}
+
+document.getElementById('custom-profile-input').addEventListener('input', saveStateAuto);
+
+// âââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function slug(co) { return co.replace(/[^a-zA-Z0-9]/g,'_'); }
+function isValidId(id) { return id && !['è¦ç¢ºèª','tbd',''].includes((id||'').trim().toLowerCase()); }
+function getStats(co) {
+  const u = STATE[co].units;
+  return { total: u.length, confirmed: u.filter(u => isValidId(u.stock_level_id)).length };
+}
+function hasData(co) { return STATE[co].units.length > 0; }
+function dotFor(co) {
+  const s = getStats(co);
+  if (s.confirmed === s.total && s.total > 0) return 'dot dot-ok';
+  if (s.confirmed > 0) return 'dot dot-warn';
+  return 'dot dot-none';
+}
+function pillFor(co) {
+  const s = getStats(co);
+  if (s.total === 0) return ['pill p-none','æªç»é²'];
+  if (s.confirmed === s.total) return ['pill p-ok', s.confirmed+' / '+s.total+' å°ç¢ºèªæ¸'];
+  if (s.confirmed > 0) return ['pill p-warn', s.confirmed+' / '+s.total+' å°ç¢ºèªæ¸'];
+  return ['pill p-none','0 / '+s.total+' å° â IDæªç¢ºèª'];
+}
+
+// âââ Stats bar ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function renderStats() {
+  let tC=0, tP=0, rC=0;
+  Object.keys(STATE).forEach(co => {
+    const s = getStats(co);
+    tC += s.confirmed;
+    tP += (s.total - s.confirmed);
+    if (s.confirmed > 0) rC++;
+  });
+  document.getElementById('stat-confirmed').textContent = tC + ' å°';
+  document.getElementById('stat-companies').textContent = rC + ' / ' + Object.keys(STATE).length + ' ç¤¾';
+  document.getElementById('stat-pending').textContent = tP + ' å°';
+}
+
+// âââ Table builder ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function buildTable(co) {
+  const hasTogo = STATE[co].cols.includes('asset_number');
+  const units = STATE[co].units;
+  if (!units.length) return '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">ãã¼ã¿ãªã â CSVãImportãã¦ãã ãã</div>';
+  const rows = units.map(u => {
+    const valid = isValidId(u.stock_level_id);
+    if (hasTogo) return `<tr><td style="font-family:monospace;font-size:11px;color:${valid?'var(--text2)':'var(--warn-text)'};">${u.stock_level_id||'â'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.asset_number||'â'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'ç¢ºèªæ¸':'è¦ç¢ºèª'}</span></td></tr>`;
+    return `<tr><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.stock_level_id||'â'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.serial_number||'â'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'ç¢ºèªæ¸':'è¦ç¢ºèª'}</span></td></tr>`;
+  }).join('');
+  return `<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><thead><tr><th style="width:108px;">stock_level_id</th><th style="width:${hasTogo?96:136}px;">${hasTogo?'ã¢ã»ããçªå·':'ã·ãªã¢ã«çªå·'}</th><th>æ©æå</th><th style="width:66px;text-align:center;">ç¶æ</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+// âââ Accordions âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function renderAccordions() {
+  const list = document.getElementById('accordion-list');
+  list.innerHTML = '';
+  Object.keys(STATE).forEach(co => {
+    const sl = slug(co);
+    const [pillCls, pillTxt] = pillFor(co);
+    const expDis = !hasData(co);
+    const card = document.createElement('div');
+    card.className = 'ac-card';
+    card.id = 'ac-' + sl;
+    card.innerHTML = `
+      <div class="ac-hdr" onclick="toggleAc('${sl}')">
+        <span class="chev" id="chev-${sl}">âº</span>
+        <span class="${dotFor(co)}" id="dot-${sl}"></span>
+        <span style="font-size:14px;font-weight:600;flex:1;">${co}${STATE[co].builtin?'':' <span style="font-size:11px;font-weight:400;color:var(--text3);">(ã«ã¹ã¿ã )</span>'}</span>
+        <span class="${pillCls}" id="pill-${sl}">${pillTxt}</span>
+        <button class="ibtn" onclick="event.stopPropagation();triggerImport('${sl}')">â¬ Import</button>
+        <button class="ibtn" id="exp-${sl}" onclick="event.stopPropagation();exportCSV('${co}')" ${expDis?'disabled title="ãã¼ã¿ãªã"':''}>â¬ Export</button>
+        <button class="ibtn danger" id="del-${sl}" onclick="event.stopPropagation();confirmDel('${co}')" title="åé¤">ð</button>
+        <span id="del-conf-${sl}" style="display:none;align-items:center;gap:4px;">
+          <span style="font-size:12px;color:var(--danger-text);">åé¤ãã¾ããï¼</span>
+          <button class="ibtn confirm" onclick="event.stopPropagation();doDelete('${co}')">åé¤</button>
+          <button class="ibtn" onclick="event.stopPropagation();cancelDel('${co}')">ã­ã£ã³ã»ã«</button>
+        </span>
+        <input type="file" id="file-${sl}" accept=".csv" style="display:none" onchange="importCSV('${co}',this)">
+      </div>
+      <div class="ac-body" id="body-${sl}">${buildTable(co)}</div>`;
+    list.appendChild(card);
+  });
+}
+
+function updateAccordion(co) {
+  const sl = slug(co);
+  const [pc, pt] = pillFor(co);
+  document.getElementById('dot-' + sl).className = dotFor(co);
+  const p = document.getElementById('pill-' + sl);
+  p.className = pc; p.textContent = pt;
+  document.getElementById('body-' + sl).innerHTML = buildTable(co);
+  const eb = document.getElementById('exp-' + sl);
+  if (hasData(co)) { eb.disabled = false; eb.removeAttribute('title'); }
+  else { eb.disabled = true; eb.title = 'ãã¼ã¿ãªã'; }
+}
+
+function toggleAc(sl) {
+  const b = document.getElementById('body-' + sl);
+  const c = document.getElementById('chev-' + sl);
+  const open = !b.classList.contains('open');
+  b.classList.toggle('open', open);
+  c.style.transform = open ? 'rotate(90deg)' : '';
+}
+
+function triggerImport(sl) { document.getElementById('file-' + sl).click(); }
+
+// âââ CSV parse/export ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function parseCSV(txt) {
+  const lines = txt.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const hdrs = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).map(line => {
+    const vals=[]; let cur=''; let inQ=false;
+    for(const ch of line){if(ch==='"')inQ=!inQ;else if(ch===','&&!inQ){vals.push(cur.trim());cur='';}else cur+=ch;}
+    vals.push(cur.trim());
+    const row={}; hdrs.forEach((h,i)=>row[h]=(vals[i]||'').replace(/^"|"$/g,''));
+    return row;
+  }).filter(r=>Object.values(r).some(v=>v.trim()));
+}
+
+function importCSV(co, inp) {
+  const file = inp.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = e => {
+    const rows = parseCSV(e.target.result);
+    if (!rows.length) { alert('CSWç®èª­ã¿è¾¼ã¿ã«å¤±æãã¾ãã'); return; }
+    STATE[co].units = rows;
+    STATE[co].cols = Object.keys(rows[0]);
+    updateAccordion(co);
+    renderStats();
+    renderCompanyChecks();
+    updateExecBtn();
+    saveStateAuto();
+    const sl = slug(co);
+    if (!document.getElementById('body-' + sl).classList.contains('open')) toggleAc(sl);
+  };
+  r.readAsText(file, 'UTF-8');
+  inp.value = '';
+}
+
+function exportCSV(co) {
+  const d = STATE[co];
+  const hdrs = d.cols.length ? d.cols : ['stock_level_id','serial_number','product','company','notes'];
+  const csv = [hdrs.join(','), ...d.units.map(u =>
+    hdrs.map(h => { const v = u[h]||''; return v.includes(',') ? `"${v}"` : v; }).join(',')
+  )].join('\n');
+  const b = new Blob(['ï»¿' + csv], {type:'text/csv;charset=utf-8;});
+  const url = URL.createObjectURL(b;
+  const a = document.createElement('a');
+  a.href = url; a.download = co.replace(/\s./g,'_') + '_inventory.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+// âââ Delete âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function confirmDel(co) {
+  const sl = slug(co);
+  document.getElementById('del-'+sl).style.display='none';
+  document.getElementById('del-conf-'+sl).style.display='flex';
+}
+function cancelDel(co) {
+  const sl = slug(co);
+  document.getElementById('del-'+sl).style.display='';
+  document.getElementById('del-conf-'+sl).style.display='none';
+}
+function doDelete(co) {
+  delete STATE[co];
+  renderAccordions(); renderStats(); renderCompanyChecks(); updateExecBtn(); saveStateAuto();
+}
+
+// âââ Add company âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function showAddForm() {
+  document.getElementById('add-form').style.display='block';
+  document.getElementById('add-co-btn').style.display='none';
+  document.getElementById('new-co-name').focus();
+}
+function hideAddForm() {
+  document.getElementById('add-form').style.display='none';
+  document.getElementById('add-co-btn').style.display='flex';
+  document.getElementById('new-co-name').value='';
+}
+function addCompany() {
+  const name = document.getElementById('new-co-name').value.trim();
+  if (!name) { document.getElementById('new-co-name').focus(); return; }
+  if (STATE[name]) { alert('å·åãããä¼ç¤¾ããã§ã«å­å¨ãã¾ã'); return; }
+  STATE[name] = { builtin: false, cols: ['stock_level_id','serial_number','product','company','notes'], units: [] };
+  hideAddForm();
+  renderAccordions(); renderStats(); renderCompanyChecks(); updateExecBtn(); saveStateAuto();
+  setTimeout(() => toggleAc(slug(name)), 50);
+}
+document.getElementById('new-co-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addCompany();
+  if (e.key === 'Escape') hideAddForm();
+});
+
+// âââ Company checkboxes âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function renderCompanyChecks() {
+  const c = document.getElementById('company-checks');
+  c.innerHTML = '';
+  Object.keys(STATE).forEach(co => {
+    const s = getStats(co);
+    const ok = s.confirmed > 0;
+    const sl = slug(co);
+    const div = document.createElement('div');
+    div.className = 'cb-row ' + (ok ? 'on' : 'off');
+    div.innerHTML = `<input type="checkbox" id="cb-${sl}" ${ok?'':'disabled'} ${ok?'checked':''} onchange="saveStateAuto();updateExecBtn()">
+      <span class="dot ${dotFor(co)}"></span>
+      <div style="flex:1;">
+        <div style="font-size:13px;color:var(--text);">${co}</div>
+        <div style="font-size:12px;color:var(--text2);">${ok ? s.confirmed+' å°ç¢ºèªæ¸' : 'IDæªç¢ºèª â Importãã¦ãã ãã'}</div>
+      </div>`;
+    if (ok) div.onclick = e => {
+      if (e.target.tagName !== 'INPUT') {
+        const cb = document.getElementById('cb-' + sl);
+        cb.checked = !cb.checked;
+      }
+      saveStateAuto(); updateExecBtn();
+    };
+    c.appendChild(div);
+  });
+}
+
+// âââ Month selector âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function onYearChange() {
+  const sy = document.getElementById('sel-year');
+  const sm = document.getElementById('sel-month');
+  const y = parseInt(sy.value);
+  const cy = NOW.getFullYear();
+  const cm = NOW.getMonth() + 1;
+  Array.from(sm.options).forEach(o => {
+    const m = parseInt(o.value);
+    const fut = (y > cy) || (y === cy && m > cm);
+    o.disabled = fut;
+    o.style.color = fut ? '#ccc' : '';
+  });
+  if (y === cy && parseInt(sm.value) > cm) sm.value = cm;
+  saveStateAuto(); updateExecBtn();
+}
+
+function updateExecBtn() {
+  const any = Object.keys(STATE).some(co => {
+    const el = document.getElementById('cb-' + slug(co));
+    return el && !el.disabled && el.checked;
+  });
+  document.getElementById('exec-btn').disabled = !any;
+}
+
+// âââ Error guide toggle ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+function toggleErrGuide() {
+  const g = document.getElementById('err-guide');
+  const c = document.getElementById('chev-err');
+  const open = g.style.display !== 'block';
+  g.style.display = open ? 'block' : 'none';
+  c.style.transform = open ? 'rotate(90deg)' : '';
+}
+
+// âââ Execute / Stop / Retry ââââââââââââââââââââââââââââââââââââââââââââââââââ
+function executeReport() {
+  const year = document.getElementById('sel-year').value;
+  const month = document.getElementById('sel-month').value;
+  const selected = Object.keys(STATE).filter(co => {
+    const el = document.getElementById('cb-' + slug(co));
+    return el && !el.disabled && el.checked;
+  });
+  const profileLabel = getChromeProfileLabel();
+  lastReq = { year, month, cos: selected, profile: profileLabel };
+
+  let detail = '';
+  selected.forEach(co => {
+    const valid = STATE[co].units.filter(u => isValidId(u.stock_level_id));
+    const byP = {};
+    valid.forEach(u => { if (!byP[u.product]) byP[u.product]=[]; byP[u.product].push(u.stock_level_id); });
+    detail += `\nã${co}ã\n`;
+    Object.entries(byP).forEach(([p, ids]) => { detail += `ã»${p}: ${ids.length}å° / IDs: ${ids.join(', ')}\n`; });
+  });
+
+  const btn = document.getElementById('exec-btn');
+  btn.disabled = true;
+
+  sendPrompt(`ææ¬¡ã¬ãã¼ãå®è¡ãªã¯ã¨ã¹ã\n\nå¯¾è°¡æ: ${year}å¹´${month}æ\nå¯¾è±¡ä¼ç¤¾: ${selected.join(', ')}\nChromeãã­ãã¡ã¤ã«: ${profileLabel}\n${detail}\næé :\n1. ã¯ã¸æ² mcp__Claude_in_Chrome__list_connected_browsers ã§ãã©ããµä¸è¦§ãç¢ºèªããã${profileLabel}ãã«é¸æãããã©ããµã select_browser ã§é¸æãã¦ãã ããã\n2. capsule.current-rms.com ã«ã¢ã¯ã»ã¹ããã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ããã\n3. ã­ã°ã¤ã³ãã¼ã¸ã«ãªãã¤ã«ã¯ãããã¦ããå ´åã¯ãã­ã°ã¤ã³ãfþéªã§ããã¨å °åããå¦ãã­ãã¡ã¤ã«ã¸ã®åã­æ¿ãæ¥å¶ãè¨ºæ­ãã¦ãã ããã\n4. ã­ã°ã¤ã³æ¸ã§ããã°ãåstock_level_idã«ã¤ãã¦ /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 ãã¹ã¯ã¬ã¼ãã³ã°ãã¦${year}å¹´${month}æã¨éãªãå®ç¸¾ãææ¨ãã¦ãã ããã\n5. æå»µå°åç§æ¨£ åä¾¡ å®è´ä¸­æããä¸çªã«CSVãã¦ã³ã¬ã¼ãä»ãã§èªåãã¦ãã ããã`);
+  
+  setTimeout(() => {
+    btn.style.background = '#3B6D11';
+    btn.textContent = 'â éä¿¡æ¸ã¿ â å®è¡ä¸­';
+    document.getElementById('exec-note').textContent = 'ãã®ãã£ããã®ä¸ã«ã¹ã¯ã¬ã¼ãã³ã°ã®é²æãè¡¨ç¤ºããã¾ã';
+    showStatusPanel('running');
+  }, 400);
+}
+
+function showStatusPanel(mode) {
+  const panel = document.getElementById('status-panel');
+  panel.style.display = 'block';
+  document.getElementById('login-panel').style.display = 'none';
+  if (mode === 'running') {
+    document.getElementById('status-icon').textContent = 'â³';
+    document.getElementById('status-icon').className = 'spin';
+    document.getElementById('status-title').textContent = 'Claudeãå®è¡ä¸­';
+    document.getElementById('status-sub').textContent = 'Chromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ãã¦ãã¾ã...';
+    document.getElementById('stop-btn').style.display = '';
+    document.getElementById('retry-btn').style.display = 'none';
+  } else if (mode === 'stopped') {
+    document.getElementById('status-icon').textContent = 'â¹';
+    document.getElementById('status-icon').className = '';
+    document.getElementById('status-title').textContent = 'åæ­¢ãªã¯ã¨ã¹ãéä¿¡æ¸ã¿';
+    document.getElementById('status-sub').textContent = 'Claudeã«åæ­¢ãæç¤ºãã¾ãã â åå®è¡ã§ãã¾ã';
+    document.getElementById('stop-btn').style.display = 'none';
+    document.getElementById('retry-btn').style.display = '';
+  } else if (mode === 'login') {
+    document.getElementById('status-icon').textContent = 'ð';
+    document.getElementById('status-icon').className = '';
+    document.getElementById('status-title').textContent = 'ã­ã°ã¤ã³ãå¿è¦ã§ã';
+    document.getElementById('status-sub').textContent = 'ä¸ã®ãªãã·ã§ã³ããå¯¾å¿ãé¸æãã¦ãã ãã';
+    document.getElementById('stop-btn').style.display = 'none';
+    document.getElementById('retry-btn').style.display = '';
+    document.getElementById('login-panel').style.display = 'block';
+    document.getElementById('login-profile-name').textContent = getChromeProfileLabel();
+  }
+}
+
+function stopReport() {
+  sendPrompt('ã¹ã¯ã¬ã¼ãã³ã°ãåæ­¢ãã¦ãã ãããç¾å¨ã®ä½æ¥­ãä¸­æ­ãã¦ãã ããã');
+  showStatusPanel('stopped');
+  const btn = document.getElementById('exec-btn');
+  btn.style.background = 'var(--primary)';
+  btn.disabled = false;
+  btn.textContent = 'â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡';
+  document.getElementById('exec-note').textContent = 'ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã';
+}
+
+function retryReport() {
+  document.getElementById('status-panel').style.display = 'none';
+  const btn = document.getElementById('exec-btn');
+  btn.style.background = 'var(--primary)';
+  btn.disabled = false;
+  btn.textContent = 'â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡';
+  document.getElementById('exec-note').textContent = 'ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã';
+}
+
+function switchToWork() { selectProfile('work'); sendPrompt('Workã®Chromeãã­ãã¡ã¤ã«ã«åãæ¿ãã¦ãååº¦capsule.current-rms.comã«ã¢ã¯ã»ã¹ãã¦ãã ããã'); }
+function switchToPersonal() { selectProfile('personal'); sendPrompt('Personalã®Chromeãã­ãã¡ã¤ã«ã«åãæ¿ãã¦ãååº¦capsule.current-rms.comã«ã¢ã¯ã»ã¹ãã¦ãã ããã'); }
+function retryAfterLogin() { retryReport(); }
+
+function reportError() {
+  sendPrompt(`ã¹ã¯ã¬ã¼ãã³ã°ä¸­ã«ã¨ã©ã¼ãçºçããå¯è½æ§ããã¾ãã\nå¯¾è±¡: ${lastReq.year}å¹´${lastReq.month}æ / ${(lastReq.cos||[]).join(', ')}\nChromeãã­ãã¡ã¤ã«: ${lastReq.profile}\nChromeæ¥ç¶ç¶æã»Current RMSã¸ã®ã¢ã¯ã»ã¹ç¶æ³ãè¨ºæ­ãã¦åé¡ã¨å¯¾å¦æ³ãæãã¦ãã ããã`);
+}
+
+// âââ Init âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+document.getElementById('today-lbl').textContent = NOW.toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'});
+
+// Year dropdown
+const ys = document.getElementById('sel-year');
+const cy = NOW.getFullYear();
+for (let y = cy; y >= cy-3; y--) {
+  const o = document.createElement('option');
+  o.value = y; o.textContent = y + 'å¹´'; ys.appendChild(o);
+}
+
+// Default month = last month
+const lm = new Date(NOW.getFullYear(), NOW.getMonth()-1, 1);
+ys.value = lm.getFullYear();
+document.getElementById('sel-month').value = lm.getMonth() + 1;
+
+// Render UI
+renderAccordions();
+renderStats();
+renderCompanyChecks();
+
+// Load saved state (overwrites defaults)
+if (loadState()) {
+  renderAccordions();
+  renderStats();
+  renderCompanyChecks();
+}
+
+onYearChange();
+updateExecBtn();
+</script>
+</body>
+</html>

@@ -422,9 +422,14 @@ function saveState() {
     const y = document.getElementById('sel-year');
     const m = document.getElementById('sel-month');
     const ci = document.getElementById('custom-profile-input');
+    // builtin会社のユニットデータは保存しない（常にDEFAULT_STATEから取得）
+    const customCompanies = {};
+    Object.keys(STATE).forEach(co => {
+      if (!STATE[co].builtin) customCompanies[co] = STATE[co];
+    });
     const payload = {
-      v: 2,
-      companies: STATE,
+      v: 3,
+      companies: customCompanies,
       year: y ? y.value : null,
       month: m ? m.value : null,
       profile: currentProfile,
@@ -454,7 +459,12 @@ function loadState() {
     if (!raw) return false;
     const p = JSON.parse(raw);
     if (!p || p.v < 2) return false;
-    STATE = p.companies || STATE;
+    // builtin会社はDEFAULT_STATEのまま。カスタム会社だけ復元
+    if (p.companies) {
+      Object.keys(p.companies).forEach(co => {
+        if (!p.companies[co].builtin) STATE[co] = p.companies[co];
+      });
+    }
     if (p.year) {
       const ys = document.getElementById('sel-year');
       if (ys) ys.value = p.year;

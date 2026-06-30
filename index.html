@@ -280,17 +280,39 @@ tr:nth-child(even) td{background:var(--bg2);}
 // ─── sendPrompt fallback (when running as standalone HTML outside Claude) ────
 (function() {
   if (typeof sendPrompt !== 'undefined') return; // already available (Claude artifact env)
+
+  function showAutoToast(success) {
+    const existing = document.getElementById('sp-toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.id = 'sp-toast';
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:14px 22px;border-radius:14px;font-size:13px;z-index:9999;max-width:380px;width:90%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.3);line-height:1.6;';
+    if (success) {
+      t.innerHTML = '✅ Claudeを新しいタブで開きました<br><span style="opacity:.75;font-size:12px;">そのタブで <strong style="background:#333;padding:1px 6px;border-radius:4px;">⌘V</strong> → <strong style="background:#333;padding:1px 6px;border-radius:4px;">Enter</strong> を押すだけでOK</span>';
+    } else {
+      t.innerHTML = '📋 プロンプトをコピーしました<br><span style="opacity:.75;font-size:12px;">claude.aiを開いて貼り付けてください</span>';
+    }
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.transition='opacity .4s'; t.style.opacity='0'; setTimeout(()=>t.remove(),400); }, 7000);
+  }
+
   window.sendPrompt = function(msg) {
-    const ta = document.getElementById('pm-text');
-    const overlay = document.getElementById('pm-overlay');
-    if (!ta || !overlay) return;
-    ta.value = msg;
-    overlay.classList.add('open');
-    ta.focus(); ta.select();
-    // reset copy button
-    const btn = document.getElementById('pm-copy-btn');
-    btn.textContent = 'コピーしてClaudeへ貼り付け';
-    btn.classList.remove('copied');
+    // Try: clipboard copy + auto-open claude.ai
+    navigator.clipboard.writeText(msg).then(() => {
+      const tab = window.open('https://claude.ai/new', '_blank');
+      showAutoToast(!!tab);
+    }).catch(() => {
+      // Fallback: show modal for manual copy
+      const ta = document.getElementById('pm-text');
+      const overlay = document.getElementById('pm-overlay');
+      if (!ta || !overlay) return;
+      ta.value = msg;
+      overlay.classList.add('open');
+      ta.focus(); ta.select();
+      const btn = document.getElementById('pm-copy-btn');
+      btn.textContent = 'コピーしてClaudeへ貼り付け';
+      btn.classList.remove('copied');
+    });
   };
   window.closePM = function() {
     document.getElementById('pm-overlay').classList.remove('open');
@@ -298,8 +320,9 @@ tr:nth-child(even) td{background:var(--bg2);}
   window.copyPM = function() {
     const ta = document.getElementById('pm-text');
     navigator.clipboard.writeText(ta.value).then(() => {
+      const tab = window.open('https://claude.ai/new', '_blank');
       const btn = document.getElementById('pm-copy-btn');
-      btn.textContent = '✓ コピー完了！Claudeに貼り付けてください';
+      btn.textContent = tab ? '✓ Claudeタブを開きました — ⌘V で貼り付け' : '✓ コピー完了！Claudeに貼り付けてください';
       btn.classList.add('copied');
     }).catch(() => {
       ta.select(); document.execCommand('copy');

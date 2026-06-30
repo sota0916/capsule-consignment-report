@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>å§è¨åææ¬¡ã¬ãã¼ã</title>
+<title>委託品月次レポート</title>
 <style>
 :root{color-scheme:light;--bg:#ffffff;--bg2:#f8f9fa;--bg3:#f1f3f5;--text:#1a1a1a;--text2:#555;--text3:#888;--border:#e5e7eb;--border2:#d1d5db;--primary:#185FA5;--primary-dark:#124d8a;--success-bg:#ecfce6;--success-text:#3a6e0c;--warn-bg:#fef9c3;--warn-text:#854d0e;--danger-bg:#fee2e2;--danger-text:#b91c1c;--danger-border:#fca5a5;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -124,131 +125,131 @@ tr:nth-child(even) td{background:var(--bg2);}
 <div class="hdr">
   <div>
     <div style="font-size:11px;letter-spacing:.1em;color:var(--text3);text-transform:uppercase;margin-bottom:3px;">Capsule</div>
-    <div class="hdr-title">å§è¨åææ¬¡ã¬ãã¼ã</div>
+    <div class="hdr-title">委託品月次レポート</div>
     <div class="hdr-sub">Consignment Monthly Report Generator</div>
   </div>
   <div style="text-align:right;">
-    <div class="hdr-badge"><span class="saved-dot" id="saved-dot"></span><span id="saved-lbl">æçµä¿å­: â</span></div>
+    <div class="hdr-badge"><span class="saved-dot" id="saved-dot"></span><span id="saved-lbl">最終保存: —</span></div>
     <div style="font-size:11px;color:var(--text3);margin-top:4px;" id="today-lbl"></div>
   </div>
 </div>
 
 <!-- Stats -->
 <div class="stats">
-  <div class="stat"><div class="stat-label">ç¢ºèªæ¸ã¿ã¦ããã</div><div class="stat-val" id="stat-confirmed">â</div></div>
-  <div class="stat"><div class="stat-label">å®è¡å¯è½ãªä¼ç¤¾</div><div class="stat-val" id="stat-companies">â</div></div>
-  <div class="stat warn"><div class="stat-label">IDæªç¢ºèª</div><div class="stat-val" id="stat-pending">â</div></div>
+  <div class="stat"><div class="stat-label">確認済みユニット</div><div class="stat-val" id="stat-confirmed">—</div></div>
+  <div class="stat"><div class="stat-label">実行可能な会社</div><div class="stat-val" id="stat-companies">—</div></div>
+  <div class="stat warn"><div class="stat-label">ID未確認</div><div class="stat-val" id="stat-pending">—</div></div>
 </div>
 
 <!-- Inventory -->
-<div class="sec">ð¦ ã¤ã³ãã³ããª</div>
+<div class="sec">📦 インベントリ</div>
 <div id="accordion-list"></div>
 
 <!-- Add form -->
 <div class="add-form" id="add-form">
-  <div style="font-size:13px;font-weight:600;color:var(--text);">æ°ããå§è¨ä¼ç¤¾ãè¿½å </div>
+  <div style="font-size:13px;font-weight:600;color:var(--text);">新しい委託会社を追加</div>
   <div class="add-row">
-    <input type="text" id="new-co-name" placeholder="ä¼ç¤¾åï¼ä¾ï¼Video Serviceï¼" style="flex:1;">
-    <button class="ibtn" style="color:var(--text);font-weight:600;" onclick="addCompany()">è¿½å </button>
-    <button class="ibtn" onclick="hideAddForm()">ã­ã£ã³ã»ã«</button>
+    <input type="text" id="new-co-name" placeholder="会社名（例：Video Service）" style="flex:1;">
+    <button class="ibtn" style="color:var(--text);font-weight:600;" onclick="addCompany()">追加</button>
+    <button class="ibtn" onclick="hideAddForm()">キャンセル</button>
   </div>
 </div>
-<button class="add-co-btn" id="add-co-btn" onclick="showAddForm()">ï¼ ä¼ç¤¾ãè¿½å </button>
+<button class="add-co-btn" id="add-co-btn" onclick="showAddForm()">＋ 会社を追加</button>
 
 <!-- Month selector + Company checks -->
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
   <div>
-    <div class="sec">ð å¯¾è±¡æãé¸æ</div>
+    <div class="sec">📅 対象月を選択</div>
     <div style="display:flex;gap:8px;">
       <select id="sel-year" style="flex:1;" onchange="onYearChange()"></select>
       <select id="sel-month" style="flex:1;" onchange="saveStateAuto();updateExecBtn()">
-        <option value="1">1æ</option><option value="2">2æ</option><option value="3">3æ</option>
-        <option value="4">4æ</option><option value="5">5æ</option><option value="6">6æ</option>
-        <option value="7">7æ</option><option value="8">8æ</option><option value="9">9æ</option>
-        <option value="10">10æ</option><option value="11">11æ</option><option value="12">12æ</option>
+        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+        <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+        <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
       </select>
     </div>
   </div>
   <div>
-    <div class="sec">ð¢ å¯¾è±¡ä¼ç¤¾</div>
+    <div class="sec">🏢 対象会社</div>
     <div style="display:flex;flex-direction:column;gap:6px;" id="company-checks"></div>
   </div>
 </div>
 
 <!-- Chrome profile selector -->
 <div class="profile-wrap">
-  <div class="profile-label">ð ä½¿ç¨ããChromeãã­ãã¡ã¤ã«</div>
+  <div class="profile-label">🌐 使用するChromeプロファイル</div>
   <div class="profile-btns">
-    <button class="pbtn active" data-profile="work" onclick="selectProfile('work')">ð¼ Workï¼ä»äºç¨ï¼</button>
-    <button class="pbtn" data-profile="personal" onclick="selectProfile('personal')">ð  Personalï¼åäººç¨ï¼</button>
-    <button class="pbtn" data-profile="custom" onclick="selectProfile('custom')">âï¸ ãã®ä»...</button>
+    <button class="pbtn active" data-profile="work" onclick="selectProfile('work')">💼 Work（仕事用）</button>
+    <button class="pbtn" data-profile="personal" onclick="selectProfile('personal')">🏠 Personal（個人用）</button>
+    <button class="pbtn" data-profile="custom" onclick="selectProfile('custom')">✏️ その他...</button>
   </div>
-  <input type="text" id="custom-profile-input" class="profile-custom" placeholder="Chromeãã­ãã¡ã¤ã«åãå¥åï¼ä¾ï¼Capsule Workï¼">
-  <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="profile-hint">Workã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã</div>
+  <input type="text" id="custom-profile-input" class="profile-custom" placeholder="Chromeプロファイル名を入力（例：Capsule Work）">
+  <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="profile-hint">WorkアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください</div>
 </div>
 
 <!-- Execute -->
 <div style="border-top:1px solid var(--border);padding-top:16px;">
   <button id="exec-btn" class="exec" onclick="executeReport()" disabled>
-    â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡
+    ▶ スクレーピングを実行
   </button>
-  <p id="exec-note" style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px;">ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã</p>
+  <p id="exec-note" style="font-size:12px;color:var(--text3);text-align:center;margin-top:8px;">ClaudeがChrome経由でCurrent RMSにアクセスし、各ユニットの実績を自動収集します</p>
 </div>
 
 <!-- Status panel -->
 <div class="status-panel" id="status-panel">
   <div class="status-hdr">
-    <span id="status-icon" class="spin" style="font-size:20px;flex-shrink:0;">â³</span>
+    <span id="status-icon" class="spin" style="font-size:20px;flex-shrink:0;">⟳</span>
     <div style="flex:1;min-width:0;">
-      <div style="font-size:13px;font-weight:600;color:var(--text);" id="status-title">Claudeãå®è¡ä¸­</div>
-      <div style="font-size:12px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="status-sub">Chromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ãã¦ãã¾ã...</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text);" id="status-title">Claudeが実行中</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="status-sub">Chrome経由でCurrent RMSにアクセスしています...</div>
     </div>
     <div class="status-actions">
-      <button id="stop-btn" class="stop-btn" onclick="stopReport()">â¹ åæ­¢</button>
-      <button id="retry-btn" class="ibtn" onclick="retryReport()" style="display:none;">âº åå®è¡</button>
+      <button id="stop-btn" class="stop-btn" onclick="stopReport()">⏹ 停止</button>
+      <button id="retry-btn" class="ibtn" onclick="retryReport()" style="display:none;">↺ 再実行</button>
     </div>
   </div>
 
-  <!-- Login choice â shown when Claude detects sign-in redirect -->
+  <!-- Login choice — shown when Claude detects sign-in redirect -->
   <div class="login-panel" id="login-panel">
-    <h4>â ï¸ Current RMSã¸ã®ã­ã°ã¤ã³ãå¿è¦ã§ã</h4>
+    <h4>⚠️ Current RMSへのログインが必要です</h4>
     <div style="font-size:12px;color:#92400e;margin-bottom:10px;">
-      é¸æä¸­ã®ãã­ãã¡ã¤ã«: <strong id="login-profile-name">Work Chrome</strong><br>
-      å¥ã®ãã­ãã¡ã¤ã«ã«åãæ¿ããããã­ã°ã¤ã³å¾ã«åå®è¡ãã¦ãã ããã
+      選択中のプロファイル: <strong id="login-profile-name">Work Chrome</strong><br>
+      別のプロファイルに切り替えるか、ログイン後に再実行してください。
     </div>
     <div class="login-actions">
-      <button class="login-btn" onclick="switchToWork()">ð¼ Work Chromeã§è©¦ã</button>
-      <button class="login-btn" onclick="switchToPersonal()">ð  Personal Chromeã§è©¦ã</button>
-      <button class="login-btn" onclick="retryAfterLogin()">â ã­ã°ã¤ã³å®äº â åå®è¡</button>
+      <button class="login-btn" onclick="switchToWork()">💼 Work Chromeで試す</button>
+      <button class="login-btn" onclick="switchToPersonal()">🏠 Personal Chromeで試す</button>
+      <button class="login-btn" onclick="retryAfterLogin()">✅ ログイン完了 — 再実行</button>
     </div>
   </div>
 
   <button class="err-toggle" onclick="toggleErrGuide()">
-    <span class="chev" id="chev-err">âº</span> æ¥ç¶ã«åé¡ãåºãå ´åã¯
+    <span class="chev" id="chev-err">›</span> 接続に問題が出た場合は
   </button>
   <div class="err-guide" id="err-guide">
     <div class="err-item">
-      <div class="err-icon" style="background:var(--bg3);">ð</div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Chrome MCPãæªæ¥ç¶</div><div style="font-size:12px;color:var(--text2);">Claudeæ¡å¼µæ©è½ãChromeã«ã¤ã³ã¹ãã¼ã«ããã¦ãããç¢ºèªããæ¡å¼µæ©è½ã¢ã¤ã³ã³ãã¯ãªãã¯ãã¦æ¥ç¶ãã¦ãã ããã</div></div>
+      <div class="err-icon" style="background:var(--bg3);">🌐</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Chrome MCPが未接続</div><div style="font-size:12px;color:var(--text2);">Claude拡張機能がChromeにインストールされているか確認し、拡張機能アイコンをクリックして接続してください。</div></div>
     </div>
     <div class="err-item">
-      <div class="err-icon" style="background:var(--warn-bg);">ð</div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Current RMSã«ã­ã°ã¤ã³ãã¦ããªã</div><div style="font-size:12px;color:var(--text2);">é¸æãããã­ãã¡ã¤ã«ã®Chromeã§ <strong>capsule.current-rms.com</strong> ã«ã­ã°ã¤ã³ãã¦ããåå®è¡ãã¦ãã ããã</div></div>
+      <div class="err-icon" style="background:var(--warn-bg);">🔒</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">Current RMSにログインしていない</div><div style="font-size:12px;color:var(--text2);">選択したプロファイルのChromeで <strong>capsule.current-rms.com</strong> にログインしてから再実行してください。</div></div>
     </div>
     <div class="err-item">
-      <div class="err-icon" style="background:var(--danger-bg);">â±</div>
-      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">ã¿ã¤ã ã¢ã¦ã / å¿ç­ãªã</div><div style="font-size:12px;color:var(--text2);">ã¦ãããæ°ãå¤ãã¨æéããããã¾ãããã°ããå¾ã¤ããåå®è¡ãã¿ã³ã§åè©¦è¡ãã¦ãã ããã</div></div>
+      <div class="err-icon" style="background:var(--danger-bg);">⏱</div>
+      <div><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">タイムアウト / 応答なし</div><div style="font-size:12px;color:var(--text2);">ユニット数が多いと時間がかかります。しばらく待つか、再実行ボタンで再試行してください。</div></div>
     </div>
   </div>
   <div style="padding:10px 16px;border-top:1px solid var(--border);">
-    <button class="ibtn" style="width:100%;justify-content:center;gap:6px;" onclick="reportError()">â  ã¨ã©ã¼ãClaudeã«å ±åãã¦è¨ºæ­</button>
+    <button class="ibtn" style="width:100%;justify-content:center;gap:6px;" onclick="reportError()">⚠ エラーをClaudeに報告して診断</button>
   </div>
 </div>
 
 </div><!-- .page -->
 
 <script>
-// âââ State âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── State ───────────────────────────────────────────────────────────────────
 const LS_KEY = 'capsule_consignment_v2';
 const NOW = new Date();
 
@@ -293,11 +294,11 @@ const DEFAULT_STATE = {
     builtin: true,
     cols: ['stock_level_id','asset_number','serial_number','product','company','notes'],
     units: [
-      {stock_level_id:'è¦ç¢ºèª',asset_number:'6980',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
-      {stock_level_id:'è¦ç¢ºèª',asset_number:'6986',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
-      {stock_level_id:'è¦ç¢ºèª',asset_number:'6998',serial_number:'',product:'SmallHD | 503 UltraBright',company:'TOGO',notes:'3æLuca filmã§ç¢ºèªæ¸ã¿'},
-      {stock_level_id:'è¦ç¢ºèª',asset_number:'12465',serial_number:'',product:'DJI | Transmission | Remote Monitor 7"',company:'TOGO',notes:'3æRyosukeYamada MVã»SUTICASESã§ç¢ºèªæ¸ã¿'},
-      {stock_level_id:'è¦ç¢ºèª',asset_number:'',serial_number:'',product:'Teradekï¼æ©ç¨®ã»å°æ°æªç¢ºèªï¼',company:'TOGO',notes:'Current RMSã§è¦ç¢ºèª'},
+      {stock_level_id:'要確認',asset_number:'6980',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3月Luca filmで確認済み'},
+      {stock_level_id:'要確認',asset_number:'6986',serial_number:'',product:'SmallHD | 703 Bolt',company:'TOGO',notes:'3月Luca filmで確認済み'},
+      {stock_level_id:'要確認',asset_number:'6998',serial_number:'',product:'SmallHD | 503 UltraBright',company:'TOGO',notes:'3月Luca filmで確認済み'},
+      {stock_level_id:'要確認',asset_number:'12465',serial_number:'',product:'DJI | Transmission | Remote Monitor 7"',company:'TOGO',notes:'3月RyosukeYamada MV・SUTICASESで確認済み'},
+      {stock_level_id:'要確認',asset_number:'',serial_number:'',product:'Teradek（機種・台数未確認）',company:'TOGO',notes:'Current RMSで要確認'},
     ]
   }
 };
@@ -306,7 +307,7 @@ let STATE = JSON.parse(JSON.stringify(DEFAULT_STATE));
 let currentProfile = 'work';
 let lastReq = {};
 
-// âââ localStorage âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── localStorage ─────────────────────────────────────────────────────────────
 function saveState() {
   try {
     const y = document.getElementById('sel-year');
@@ -331,7 +332,7 @@ function flashSaved(iso) {
   const lbl = document.getElementById('saved-lbl');
   if (!dot || !lbl) return;
   const d = new Date(iso);
-  lbl.textContent = 'ä¿å­æ¸: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+  lbl.textContent = '保存済: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
   dot.classList.add('show');
   setTimeout(() => dot.classList.remove('show'), 2000);
 }
@@ -361,7 +362,7 @@ function loadState() {
     if (p.savedAt) {
       const lbl = document.getElementById('saved-lbl');
       const d = new Date(p.savedAt);
-      if (lbl) lbl.textContent = 'ä¿å­æ¸: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
+      if (lbl) lbl.textContent = '保存済: ' + d.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit'});
     }
     return true;
   } catch(e) {
@@ -369,7 +370,7 @@ function loadState() {
   }
 }
 
-// âââ Chrome profile âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Chrome profile ───────────────────────────────────────────────────────────
 function selectProfile(profile, doSave = true) {
   currentProfile = profile;
   document.querySelectorAll('.pbtn').forEach(b => b.classList.toggle('active', b.dataset.profile === profile));
@@ -378,28 +379,28 @@ function selectProfile(profile, doSave = true) {
   if (profile === 'custom') {
     ci.style.display = 'block';
     ci.focus();
-    hint.textContent = 'ãã­ãã¡ã¤ã«åãå¥åãã¦ãã ããï¼ä¾ï¼Capsule Workï¼';
+    hint.textContent = 'プロファイル名を入力してください（例：Capsule Work）';
   } else {
     ci.style.display = 'none';
     hint.textContent = profile === 'work'
-      ? 'Workã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã'
-      : 'Personalã¢ã«ã¦ã³ãã®Chromeã§capsule.current-rms.comã«ã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ãã';
+      ? 'WorkアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください'
+      : 'PersonalアカウントのChromeでcapsule.current-rms.comにログイン済みか確認してください';
   }
   if (doSave) saveStateAuto();
 }
 
 function getChromeProfileLabel() {
-  if (currentProfile === 'work') return 'Workï¼ä»äºç¨ï¼Chrome';
-  if (currentProfile === 'personal') return 'Personalï¼åäººç¨ï¼Chrome';
+  if (currentProfile === 'work') return 'Work（仕事用）Chrome';
+  if (currentProfile === 'personal') return 'Personal（個人用）Chrome';
   const ci = document.getElementById('custom-profile-input');
-  return ci && ci.value.trim() ? ci.value.trim() : 'ãã®ä»ã®Chrome';
+  return ci && ci.value.trim() ? ci.value.trim() : 'その他のChrome';
 }
 
 document.getElementById('custom-profile-input').addEventListener('input', saveStateAuto);
 
-// âââ Helpers ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function slug(co) { return co.replace(/[^a-zA-Z0-9]/g,'_'); }
-function isValidId(id) { return id && !['è¦ç¢ºèª','tbd',''].includes((id||'').trim().toLowerCase()); }
+function isValidId(id) { return id && !['要確認','tbd',''].includes((id||'').trim().toLowerCase()); }
 function getStats(co) {
   const u = STATE[co].units;
   return { total: u.length, confirmed: u.filter(u => isValidId(u.stock_level_id)).length };
@@ -413,13 +414,13 @@ function dotFor(co) {
 }
 function pillFor(co) {
   const s = getStats(co);
-  if (s.total === 0) return ['pill p-none','æªç»é²'];
-  if (s.confirmed === s.total) return ['pill p-ok', s.confirmed+' / '+s.total+' å°ç¢ºèªæ¸'];
-  if (s.confirmed > 0) return ['pill p-warn', s.confirmed+' / '+s.total+' å°ç¢ºèªæ¸'];
-  return ['pill p-none','0 / '+s.total+' å° â IDæªç¢ºèª'];
+  if (s.total === 0) return ['pill p-none','未登録'];
+  if (s.confirmed === s.total) return ['pill p-ok', s.confirmed+' / '+s.total+' 台確認済'];
+  if (s.confirmed > 0) return ['pill p-warn', s.confirmed+' / '+s.total+' 台確認済'];
+  return ['pill p-none','0 / '+s.total+' 台 — ID未確認'];
 }
 
-// âââ Stats bar ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Stats bar ────────────────────────────────────────────────────────────────
 function renderStats() {
   let tC=0, tP=0, rC=0;
   Object.keys(STATE).forEach(co => {
@@ -428,25 +429,25 @@ function renderStats() {
     tP += (s.total - s.confirmed);
     if (s.confirmed > 0) rC++;
   });
-  document.getElementById('stat-confirmed').textContent = tC + ' å°';
-  document.getElementById('stat-companies').textContent = rC + ' / ' + Object.keys(STATE).length + ' ç¤¾';
-  document.getElementById('stat-pending').textContent = tP + ' å°';
+  document.getElementById('stat-confirmed').textContent = tC + ' 台';
+  document.getElementById('stat-companies').textContent = rC + ' / ' + Object.keys(STATE).length + ' 社';
+  document.getElementById('stat-pending').textContent = tP + ' 台';
 }
 
-// âââ Table builder ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Table builder ────────────────────────────────────────────────────────────
 function buildTable(co) {
   const hasTogo = STATE[co].cols.includes('asset_number');
   const units = STATE[co].units;
-  if (!units.length) return '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">ãã¼ã¿ãªã â CSVãImportãã¦ãã ãã</div>';
+  if (!units.length) return '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px;">データなし — CSVをImportしてください</div>';
   const rows = units.map(u => {
     const valid = isValidId(u.stock_level_id);
-    if (hasTogo) return `<tr><td style="font-family:monospace;font-size:11px;color:${valid?'var(--text2)':'var(--warn-text)'};">${u.stock_level_id||'â'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.asset_number||'â'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'ç¢ºèªæ¸':'è¦ç¢ºèª'}</span></td></tr>`;
-    return `<tr><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.stock_level_id||'â'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.serial_number||'â'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'ç¢ºèªæ¸':'è¦ç¢ºèª'}</span></td></tr>`;
+    if (hasTogo) return `<tr><td style="font-family:monospace;font-size:11px;color:${valid?'var(--text2)':'var(--warn-text)'};">${u.stock_level_id||'—'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.asset_number||'—'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'確認済':'要確認'}</span></td></tr>`;
+    return `<tr><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.stock_level_id||'—'}</td><td style="font-family:monospace;font-size:11px;color:var(--text2);">${u.serial_number||'—'}</td><td>${u.product}</td><td style="text-align:center;"><span class="${valid?'badge-ok':'badge-warn'}">${valid?'確認済':'要確認'}</span></td></tr>`;
   }).join('');
-  return `<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><thead><tr><th style="width:108px;">stock_level_id</th><th style="width:${hasTogo?96:136}px;">${hasTogo?'ã¢ã»ããçªå·':'ã·ãªã¢ã«çªå·'}</th><th>æ©æå</th><th style="width:66px;text-align:center;">ç¶æ</th></tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table style="width:100%;border-collapse:collapse;table-layout:fixed;"><thead><tr><th style="width:108px;">stock_level_id</th><th style="width:${hasTogo?96:136}px;">${hasTogo?'アセット番号':'シリアル番号'}</th><th>機材名</th><th style="width:66px;text-align:center;">状態</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// âââ Accordions âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Accordions ───────────────────────────────────────────────────────────────
 function renderAccordions() {
   const list = document.getElementById('accordion-list');
   list.innerHTML = '';
@@ -459,17 +460,17 @@ function renderAccordions() {
     card.id = 'ac-' + sl;
     card.innerHTML = `
       <div class="ac-hdr" onclick="toggleAc('${sl}')">
-        <span class="chev" id="chev-${sl}">âº</span>
+        <span class="chev" id="chev-${sl}">›</span>
         <span class="${dotFor(co)}" id="dot-${sl}"></span>
-        <span style="font-size:14px;font-weight:600;flex:1;">${co}${STATE[co].builtin?'':' <span style="font-size:11px;font-weight:400;color:var(--text3);">(ã«ã¹ã¿ã )</span>'}</span>
+        <span style="font-size:14px;font-weight:600;flex:1;">${co}${STATE[co].builtin?'':' <span style="font-size:11px;font-weight:400;color:var(--text3);">(カスタム)</span>'}</span>
         <span class="${pillCls}" id="pill-${sl}">${pillTxt}</span>
-        <button class="ibtn" onclick="event.stopPropagation();triggerImport('${sl}')">â¬ Import</button>
-        <button class="ibtn" id="exp-${sl}" onclick="event.stopPropagation();exportCSV('${co}')" ${expDis?'disabled title="ãã¼ã¿ãªã"':''}>â¬ Export</button>
-        <button class="ibtn danger" id="del-${sl}" onclick="event.stopPropagation();confirmDel('${co}')" title="åé¤">ð</button>
+        <button class="ibtn" onclick="event.stopPropagation();triggerImport('${sl}')">⬆ Import</button>
+        <button class="ibtn" id="exp-${sl}" onclick="event.stopPropagation();exportCSV('${co}')" ${expDis?'disabled title="データなし"':''}>⬇ Export</button>
+        <button class="ibtn danger" id="del-${sl}" onclick="event.stopPropagation();confirmDel('${co}')" title="削除">🗑</button>
         <span id="del-conf-${sl}" style="display:none;align-items:center;gap:4px;">
-          <span style="font-size:12px;color:var(--danger-text);">åé¤ãã¾ããï¼</span>
-          <button class="ibtn confirm" onclick="event.stopPropagation();doDelete('${co}')">åé¤</button>
-          <button class="ibtn" onclick="event.stopPropagation();cancelDel('${co}')">ã­ã£ã³ã»ã«</button>
+          <span style="font-size:12px;color:var(--danger-text);">削除しますか？</span>
+          <button class="ibtn confirm" onclick="event.stopPropagation();doDelete('${co}')">削除</button>
+          <button class="ibtn" onclick="event.stopPropagation();cancelDel('${co}')">キャンセル</button>
         </span>
         <input type="file" id="file-${sl}" accept=".csv" style="display:none" onchange="importCSV('${co}',this)">
       </div>
@@ -487,7 +488,7 @@ function updateAccordion(co) {
   document.getElementById('body-' + sl).innerHTML = buildTable(co);
   const eb = document.getElementById('exp-' + sl);
   if (hasData(co)) { eb.disabled = false; eb.removeAttribute('title'); }
-  else { eb.disabled = true; eb.title = 'ãã¼ã¿ãªã'; }
+  else { eb.disabled = true; eb.title = 'データなし'; }
 }
 
 function toggleAc(sl) {
@@ -500,7 +501,7 @@ function toggleAc(sl) {
 
 function triggerImport(sl) { document.getElementById('file-' + sl).click(); }
 
-// âââ CSV parse/export ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── CSV parse/export ────────────────────────────────────────────────────────
 function parseCSV(txt) {
   const lines = txt.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
@@ -519,7 +520,7 @@ function importCSV(co, inp) {
   const r = new FileReader();
   r.onload = e => {
     const rows = parseCSV(e.target.result);
-    if (!rows.length) { alert('CSWç®èª­ã¿è¾¼ã¿ã«å¤±æãã¾ãã'); return; }
+    if (!rows.length) { alert('CSVの読み込みに失敗しました。'); return; }
     STATE[co].units = rows;
     STATE[co].cols = Object.keys(rows[0]);
     updateAccordion(co);
@@ -540,14 +541,14 @@ function exportCSV(co) {
   const csv = [hdrs.join(','), ...d.units.map(u =>
     hdrs.map(h => { const v = u[h]||''; return v.includes(',') ? `"${v}"` : v; }).join(',')
   )].join('\n');
-  const b = new Blob(['ï»¿' + csv], {type:'text/csv;charset=utf-8;});
-  const url = URL.createObjectURL(b;
+  const b = new Blob(['﻿' + csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(b);
   const a = document.createElement('a');
-  a.href = url; a.download = co.replace(/\s./g,'_') + '_inventory.csv';
+  a.href = url; a.download = co.replace(/\s+/g,'_') + '_inventory.csv';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
 }
 
-// âââ Delete âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Delete ───────────────────────────────────────────────────────────────────
 function confirmDel(co) {
   const sl = slug(co);
   document.getElementById('del-'+sl).style.display='none';
@@ -563,7 +564,7 @@ function doDelete(co) {
   renderAccordions(); renderStats(); renderCompanyChecks(); updateExecBtn(); saveStateAuto();
 }
 
-// âââ Add company âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Add company ──────────────────────────────────────────────────────────────
 function showAddForm() {
   document.getElementById('add-form').style.display='block';
   document.getElementById('add-co-btn').style.display='none';
@@ -577,7 +578,7 @@ function hideAddForm() {
 function addCompany() {
   const name = document.getElementById('new-co-name').value.trim();
   if (!name) { document.getElementById('new-co-name').focus(); return; }
-  if (STATE[name]) { alert('å·åãããä¼ç¤¾ããã§ã«å­å¨ãã¾ã'); return; }
+  if (STATE[name]) { alert('同じ名前の会社が既に存在します。'); return; }
   STATE[name] = { builtin: false, cols: ['stock_level_id','serial_number','product','company','notes'], units: [] };
   hideAddForm();
   renderAccordions(); renderStats(); renderCompanyChecks(); updateExecBtn(); saveStateAuto();
@@ -588,7 +589,7 @@ document.getElementById('new-co-name').addEventListener('keydown', e => {
   if (e.key === 'Escape') hideAddForm();
 });
 
-// âââ Company checkboxes âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Company checkboxes ───────────────────────────────────────────────────────
 function renderCompanyChecks() {
   const c = document.getElementById('company-checks');
   c.innerHTML = '';
@@ -602,7 +603,7 @@ function renderCompanyChecks() {
       <span class="dot ${dotFor(co)}"></span>
       <div style="flex:1;">
         <div style="font-size:13px;color:var(--text);">${co}</div>
-        <div style="font-size:12px;color:var(--text2);">${ok ? s.confirmed+' å°ç¢ºèªæ¸' : 'IDæªç¢ºèª â Importãã¦ãã ãã'}</div>
+        <div style="font-size:12px;color:var(--text2);">${ok ? s.confirmed+'台確認済' : 'ID未確認 — Importしてください'}</div>
       </div>`;
     if (ok) div.onclick = e => {
       if (e.target.tagName !== 'INPUT') {
@@ -615,7 +616,7 @@ function renderCompanyChecks() {
   });
 }
 
-// âââ Month selector âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Month selector ───────────────────────────────────────────────────────────
 function onYearChange() {
   const sy = document.getElementById('sel-year');
   const sm = document.getElementById('sel-month');
@@ -640,7 +641,7 @@ function updateExecBtn() {
   document.getElementById('exec-btn').disabled = !any;
 }
 
-// âââ Error guide toggle ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Error guide toggle ───────────────────────────────────────────────────────
 function toggleErrGuide() {
   const g = document.getElementById('err-guide');
   const c = document.getElementById('chev-err');
@@ -649,7 +650,7 @@ function toggleErrGuide() {
   c.style.transform = open ? 'rotate(90deg)' : '';
 }
 
-// âââ Execute / Stop / Retry ââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Execute / Stop / Retry ───────────────────────────────────────────────────
 function executeReport() {
   const year = document.getElementById('sel-year').value;
   const month = document.getElementById('sel-month').value;
@@ -665,19 +666,20 @@ function executeReport() {
     const valid = STATE[co].units.filter(u => isValidId(u.stock_level_id));
     const byP = {};
     valid.forEach(u => { if (!byP[u.product]) byP[u.product]=[]; byP[u.product].push(u.stock_level_id); });
-    detail += `\nã${co}ã\n`;
-    Object.entries(byP).forEach(([p, ids]) => { detail += `ã»${p}: ${ids.length}å° / IDs: ${ids.join(', ')}\n`; });
+    detail += `\n【${co}】\n`;
+    Object.entries(byP).forEach(([p, ids]) => { detail += `・${p}: ${ids.length}台 / IDs: ${ids.join(', ')}\n`; });
   });
 
   const btn = document.getElementById('exec-btn');
+  const lbl = document.getElementById('exec-lbl');
   btn.disabled = true;
 
-  sendPrompt(`ææ¬¡ã¬ãã¼ãå®è¡ãªã¯ã¨ã¹ã\n\nå¯¾è°¡æ: ${year}å¹´${month}æ\nå¯¾è±¡ä¼ç¤¾: ${selected.join(', ')}\nChromeãã­ãã¡ã¤ã«: ${profileLabel}\n${detail}\næé :\n1. ã¯ã¸æ² mcp__Claude_in_Chrome__list_connected_browsers ã§ãã©ããµä¸è¦§ãç¢ºèªããã${profileLabel}ãã«é¸æãããã©ããµã select_browser ã§é¸æãã¦ãã ããã\n2. capsule.current-rms.com ã«ã¢ã¯ã»ã¹ããã­ã°ã¤ã³æ¸ã¿ãç¢ºèªãã¦ãã ããã\n3. ã­ã°ã¤ã³ãã¼ã¸ã«ãªãã¤ã«ã¯ãããã¦ããå ´åã¯ãã­ã°ã¤ã³ãfþéªã§ããã¨å °åããå¦ãã­ãã¡ã¤ã«ã¸ã®åã­æ¿ãæ¥å¶ãè¨ºæ­ãã¦ãã ããã\n4. ã­ã°ã¤ã³æ¸ã§ããã°ãåstock_level_idã«ã¤ãã¦ /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 ãã¹ã¯ã¬ã¼ãã³ã°ãã¦${year}å¹´${month}æã¨éãªãå®ç¸¾ãææ¨ãã¦ãã ããã\n5. æå»µå°åç§æ¨£ åä¾¡ å®è´ä¸­æããä¸çªã«CSVãã¦ã³ã¬ã¼ãä»ãã§èªåãã¦ãã ããã`);
-  
+  sendPrompt(`月次レポート実行リクエスト\n\n対象月: ${year}年${month}月\n対象会社: ${selected.join(', ')}\nChromeプロファイル: ${profileLabel}\n${detail}\n手順:\n1. まず mcp__Claude_in_Chrome__list_connected_browsers でブラウザ一覧を確認し、「${profileLabel}」に対応するブラウザを select_browser で選択してください。\n2. capsule.current-rms.com にアクセスし、ログイン済みか確認してください。\n3. ログインページにリダイレクトされた場合は「ログインが必要です」と報告し、別プロファイルへの切り替え提案をしてください。\n4. ログイン済みであれば、各stock_level_idについて /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 をスクレーピングして${year}年${month}月と重なる実績を集計してください。\n5. 案件名・日数・台数・単価・割引率・実売上をまとめてCSVダウンロード付きで表示してください。`);
+
   setTimeout(() => {
     btn.style.background = '#3B6D11';
-    btn.textContent = 'â éä¿¡æ¸ã¿ â å®è¡ä¸­';
-    document.getElementById('exec-note').textContent = 'ãã®ãã£ããã®ä¸ã«ã¹ã¯ã¬ã¼ãã³ã°ã®é²æãè¡¨ç¤ºããã¾ã';
+    btn.textContent = '✓ 送信済み — 実行中';
+    document.getElementById('exec-note').textContent = 'このチャットの下にスクレーピングの進捗が表示されます';
     showStatusPanel('running');
   }, 400);
 }
@@ -687,24 +689,24 @@ function showStatusPanel(mode) {
   panel.style.display = 'block';
   document.getElementById('login-panel').style.display = 'none';
   if (mode === 'running') {
-    document.getElementById('status-icon').textContent = 'â³';
+    document.getElementById('status-icon').textContent = '⟳';
     document.getElementById('status-icon').className = 'spin';
-    document.getElementById('status-title').textContent = 'Claudeãå®è¡ä¸­';
-    document.getElementById('status-sub').textContent = 'Chromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ãã¦ãã¾ã...';
+    document.getElementById('status-title').textContent = 'Claudeが実行中';
+    document.getElementById('status-sub').textContent = 'Chrome経由でCurrent RMSにアクセスしています...';
     document.getElementById('stop-btn').style.display = '';
     document.getElementById('retry-btn').style.display = 'none';
   } else if (mode === 'stopped') {
-    document.getElementById('status-icon').textContent = 'â¹';
+    document.getElementById('status-icon').textContent = '⏹';
     document.getElementById('status-icon').className = '';
-    document.getElementById('status-title').textContent = 'åæ­¢ãªã¯ã¨ã¹ãéä¿¡æ¸ã¿';
-    document.getElementById('status-sub').textContent = 'Claudeã«åæ­¢ãæç¤ºãã¾ãã â åå®è¡ã§ãã¾ã';
+    document.getElementById('status-title').textContent = '停止リクエスト送信済み';
+    document.getElementById('status-sub').textContent = 'Claudeに停止を指示しました — 再実行できます';
     document.getElementById('stop-btn').style.display = 'none';
     document.getElementById('retry-btn').style.display = '';
   } else if (mode === 'login') {
-    document.getElementById('status-icon').textContent = 'ð';
+    document.getElementById('status-icon').textContent = '🔒';
     document.getElementById('status-icon').className = '';
-    document.getElementById('status-title').textContent = 'ã­ã°ã¤ã³ãå¿è¦ã§ã';
-    document.getElementById('status-sub').textContent = 'ä¸ã®ãªãã·ã§ã³ããå¯¾å¿ãé¸æãã¦ãã ãã';
+    document.getElementById('status-title').textContent = 'ログインが必要です';
+    document.getElementById('status-sub').textContent = '下のオプションから対応を選択してください';
     document.getElementById('stop-btn').style.display = 'none';
     document.getElementById('retry-btn').style.display = '';
     document.getElementById('login-panel').style.display = 'block';
@@ -713,13 +715,13 @@ function showStatusPanel(mode) {
 }
 
 function stopReport() {
-  sendPrompt('ã¹ã¯ã¬ã¼ãã³ã°ãåæ­¢ãã¦ãã ãããç¾å¨ã®ä½æ¥­ãä¸­æ­ãã¦ãã ããã');
+  sendPrompt('スクレーピングを停止してください。現在の作業を中断してください。');
   showStatusPanel('stopped');
   const btn = document.getElementById('exec-btn');
   btn.style.background = 'var(--primary)';
   btn.disabled = false;
-  btn.textContent = 'â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡';
-  document.getElementById('exec-note').textContent = 'ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã';
+  btn.textContent = '▶ スクレーピングを実行';
+  document.getElementById('exec-note').textContent = 'ClaudeがChrome経由でCurrent RMSにアクセスし、各ユニットの実績を自動収集します';
 }
 
 function retryReport() {
@@ -727,19 +729,19 @@ function retryReport() {
   const btn = document.getElementById('exec-btn');
   btn.style.background = 'var(--primary)';
   btn.disabled = false;
-  btn.textContent = 'â¶ ã¹ã¯ã¬ã¼ãã³ã°ãå®è¡';
-  document.getElementById('exec-note').textContent = 'ClaudeãChromeçµç±ã§Current RMSã«ã¢ã¯ã»ã¹ããåã¦ãããã®å®ç¸¾ãèªååéãã¾ã';
+  btn.textContent = '▶ スクレーピングを実行';
+  document.getElementById('exec-note').textContent = 'ClaudeがChrome経由でCurrent RMSにアクセスし、各ユニットの実績を自動収集します';
 }
 
-function switchToWork() { selectProfile('work'); sendPrompt('Workã®Chromeãã­ãã¡ã¤ã«ã«åãæ¿ãã¦ãååº¦capsule.current-rms.comã«ã¢ã¯ã»ã¹ãã¦ãã ããã'); }
-function switchToPersonal() { selectProfile('personal'); sendPrompt('Personalã®Chromeãã­ãã¡ã¤ã«ã«åãæ¿ãã¦ãååº¦capsule.current-rms.comã«ã¢ã¯ã»ã¹ãã¦ãã ããã'); }
+function switchToWork() { selectProfile('work'); sendPrompt('WorkのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); }
+function switchToPersonal() { selectProfile('personal'); sendPrompt('PersonalのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); }
 function retryAfterLogin() { retryReport(); }
 
 function reportError() {
-  sendPrompt(`ã¹ã¯ã¬ã¼ãã³ã°ä¸­ã«ã¨ã©ã¼ãçºçããå¯è½æ§ããã¾ãã\nå¯¾è±¡: ${lastReq.year}å¹´${lastReq.month}æ / ${(lastReq.cos||[]).join(', ')}\nChromeãã­ãã¡ã¤ã«: ${lastReq.profile}\nChromeæ¥ç¶ç¶æã»Current RMSã¸ã®ã¢ã¯ã»ã¹ç¶æ³ãè¨ºæ­ãã¦åé¡ã¨å¯¾å¦æ³ãæãã¦ãã ããã`);
+  sendPrompt(`スクレーピング中にエラーが発生した可能性があります。\n対象: ${lastReq.year}年${lastReq.month}月 / ${(lastReq.cos||[]).join(', ')}\nChromeプロファイル: ${lastReq.profile}\nChrome接続状態・Current RMSへのアクセス状況を診断して問題と対処法を教えてください。`);
 }
 
-// âââ Init âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Init ─────────────────────────────────────────────────────────────────────
 document.getElementById('today-lbl').textContent = NOW.toLocaleDateString('ja-JP', {year:'numeric',month:'2-digit',day:'2-digit'});
 
 // Year dropdown
@@ -747,7 +749,7 @@ const ys = document.getElementById('sel-year');
 const cy = NOW.getFullYear();
 for (let y = cy; y >= cy-3; y--) {
   const o = document.createElement('option');
-  o.value = y; o.textContent = y + 'å¹´'; ys.appendChild(o);
+  o.value = y; o.textContent = y + '年'; ys.appendChild(o);
 }
 
 // Default month = last month

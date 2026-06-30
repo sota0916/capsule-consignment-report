@@ -115,6 +115,19 @@ tr:nth-child(even) td{background:var(--bg2);}
 
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{animation:spin 1.2s linear infinite;display:inline-block;}
+
+/* Prompt modal (fallback when sendPrompt is unavailable) */
+.pm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;display:none;align-items:flex-end;justify-content:center;}
+.pm-overlay.open{display:flex;}
+.pm-sheet{background:var(--bg);border-radius:14px 14px 0 0;padding:20px 18px 28px;width:100%;max-width:700px;box-shadow:0 -4px 24px rgba(0,0,0,.15);}
+.pm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pm-title{font-size:14px;font-weight:600;color:var(--text);}
+.pm-close{background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;line-height:1;}
+.pm-instruction{font-size:12px;color:var(--text2);background:var(--bg2);border-radius:7px;padding:10px 12px;margin-bottom:10px;line-height:1.6;}
+.pm-box{width:100%;height:180px;font-size:12px;font-family:inherit;color:var(--text);border:1px solid var(--border2);border-radius:7px;padding:10px;resize:none;background:var(--bg);}
+.pm-copy-btn{margin-top:10px;width:100%;padding:11px;font-size:14px;font-weight:600;border-radius:8px;border:none;color:#fff;background:var(--primary);cursor:pointer;}
+.pm-copy-btn.copied{background:#639922;}
+.pm-copy-btn:hover{opacity:.9;}
 </style>
 </head>
 <body>
@@ -247,7 +260,53 @@ tr:nth-child(even) td{background:var(--bg2);}
 
 </div><!-- .page -->
 
+<!-- Prompt modal: shown when sendPrompt() is not available (standalone HTML) -->
+<div class="pm-overlay" id="pm-overlay" onclick="if(event.target===this)closePM()">
+  <div class="pm-sheet">
+    <div class="pm-header">
+      <div class="pm-title">📋 Claudeへのメッセージ</div>
+      <button class="pm-close" onclick="closePM()">×</button>
+    </div>
+    <div class="pm-instruction">
+      下のテキストをコピーして、<strong>Claudeのチャット</strong>に貼り付けてください。<br>
+      ClaudeがChromeを操作してスクレーピングを実行します。
+    </div>
+    <textarea class="pm-box" id="pm-text" readonly></textarea>
+    <button class="pm-copy-btn" id="pm-copy-btn" onclick="copyPM()">コピーしてClaudeへ貼り付け</button>
+  </div>
+</div>
+
 <script>
+// ─── sendPrompt fallback (when running as standalone HTML outside Claude) ────
+(function() {
+  if (typeof sendPrompt !== 'undefined') return; // already available (Claude artifact env)
+  window.sendPrompt = function(msg) {
+    const ta = document.getElementById('pm-text');
+    const overlay = document.getElementById('pm-overlay');
+    if (!ta || !overlay) return;
+    ta.value = msg;
+    overlay.classList.add('open');
+    ta.focus(); ta.select();
+    // reset copy button
+    const btn = document.getElementById('pm-copy-btn');
+    btn.textContent = 'コピーしてClaudeへ貼り付け';
+    btn.classList.remove('copied');
+  };
+  window.closePM = function() {
+    document.getElementById('pm-overlay').classList.remove('open');
+  };
+  window.copyPM = function() {
+    const ta = document.getElementById('pm-text');
+    navigator.clipboard.writeText(ta.value).then(() => {
+      const btn = document.getElementById('pm-copy-btn');
+      btn.textContent = '✓ コピー完了！Claudeに貼り付けてください';
+      btn.classList.add('copied');
+    }).catch(() => {
+      ta.select(); document.execCommand('copy');
+    });
+  };
+})();
+
 // ─── State ───────────────────────────────────────────────────────────────────
 const LS_KEY = 'capsule_consignment_v2';
 const NOW = new Date();
@@ -670,10 +729,12 @@ function executeReport() {
   });
 
   const btn = document.getElementById('exec-btn');
-  const lbl = document.getElementById('exec-lbl');
   btn.disabled = true;
+  btn.textContent = '⟳ 送信中...';
 
-  sendPrompt(`月次レポート実行リクエスト\n\n対象月: ${year}年${month}月\n対象会社: ${selected.join(', ')}\nChromeプロファイル: ${profileLabel}\n${detail}\n手順:\n1. まず mcp__Claude_in_Chrome__list_connected_browsers でブラウザ一覧を確認し、「${profileLabel}」に対応するブラウザを select_browser で選択してください。\n2. capsule.current-rms.com にアクセスし、ログイン済みか確認してください。\n3. ログインページにリダイレクトされた場合は「ログインが必要です」と報告し、別プロファイルへの切り替え提案をしてください。\n4. ログイン済みであれば、各stock_level_idについて /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 をスクレーピングして${year}年${month}月と重なる実績を集計してください。\n5. 案件名・日数・台数・単価・割引率・実売上をまとめてCSVダウンロード付きで表示してください。`);
+  const promptMsg = `月次レポート実行リクエスト\n\n対象月: ${year}年${month}月\n対象会社: ${selected.join(', ')}\nChromeプロファイル: ${profileLabel}\n${detail}\n手順:\n1. まず mcp__Claude_in_Chrome__list_connected_browsers でブラウザ一覧を確認し、「${profileLabel}」に対応するブラウザを select_browser で選択してください。\n2. capsule.current-rms.com にアクセスし、ログイン済みか確認してください。\n3. ログインページにリダイレクトされた場合は「ログインが必要です」と報告し、別プロファイルへの切り替え提案をしてください。\n4. ログイン済みであれば、各stock_level_idについて /opportunities?filtermode=all&stock_level_id=XXX&view_id=0&per_page=200 をスクレーピングして${year}年${month}月と重なる実績を集計してください。\n5. 案件名・日数・台数・単価・割引率・実売上をまとめてCSVダウンロード付きで表示してください。`;
+
+  try { sendPrompt(promptMsg); } catch(e) { console.warn('sendPrompt error:', e); }
 
   setTimeout(() => {
     btn.style.background = '#3B6D11';
@@ -714,7 +775,7 @@ function showStatusPanel(mode) {
 }
 
 function stopReport() {
-  sendPrompt('スクレーピングを停止してください。現在の作業を中断してください。');
+  try { sendPrompt('スクレーピングを停止してください。現在の作業を中断してください。'); } catch(e) {}
   showStatusPanel('stopped');
   const btn = document.getElementById('exec-btn');
   btn.style.background = 'var(--primary)';
@@ -732,12 +793,12 @@ function retryReport() {
   document.getElementById('exec-note').textContent = 'ClaudeがChrome経由でCurrent RMSにアクセスし、各ユニットの実績を自動収集します';
 }
 
-function switchToWork() { selectProfile('work'); sendPrompt('WorkのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); }
-function switchToPersonal() { selectProfile('personal'); sendPrompt('PersonalのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); }
+function switchToWork() { selectProfile('work'); try { sendPrompt('WorkのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); } catch(e) {} }
+function switchToPersonal() { selectProfile('personal'); try { sendPrompt('PersonalのChromeプロファイルに切り替えて、再度capsule.current-rms.comにアクセスしてください。'); } catch(e) {} }
 function retryAfterLogin() { retryReport(); }
 
 function reportError() {
-  sendPrompt(`スクレーピング中にエラーが発生した可能性があります。\n対象: ${lastReq.year}年${lastReq.month}月 / ${(lastReq.cos||[]).join(', ')}\nChromeプロファイル: ${lastReq.profile}\nChrome接続状態・Current RMSへのアクセス状況を診断して問題と対処法を教えてください。`);
+  try { sendPrompt(`スクレーピング中にエラーが発生した可能性があります。\n対象: ${lastReq.year}年${lastReq.month}月 / ${(lastReq.cos||[]).join(', ')}\nChromeプロファイル: ${lastReq.profile}\nChrome接続状態・Current RMSへのアクセス状況を診断して問題と対処法を教えてください。`); } catch(e) {}
 }
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
